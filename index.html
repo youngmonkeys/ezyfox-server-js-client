@@ -18,11 +18,7 @@
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
     <script src="./lib/jsencrypt.min.js"></script>
-    <script src="./ezy-utilities.js"></script>
-    <script src="./ezy-rsa.js"></script>
-    <script src="./ezy-constants.js"></script>
-    <script src="./ezy-handlers.js"></script>
-    <script src="./ezy-client.js"></script>
+    <script src="./bin/ezyclient-1.0.0.min.js"></script>
     <script type="text/javascript">
         var log = function(msg) {
             var log = $('#log')
@@ -31,7 +27,7 @@
 
         var HandshakeEventHandler = function() {
             this.handle = function(context, data) {
-                // this.sendLoginRequest(context);
+                this.sendLoginRequest(context);
                 this.startPing(context);
             }
 
