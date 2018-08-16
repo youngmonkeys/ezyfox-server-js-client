@@ -1,0 +1,66 @@
+var EzyEventType = EzyEventType || {};
+EzyEventType.CONNECTION_SUCCESS = "CONNECTION_SUCCESS";
+EzyEventType.CONNECTION_FAILURE = "CONNECTION_FAILURE";
+EzyEventType.DISCONNECTION = "DISCONNECTION";
+EzyEventType.MESSAGE = "MESSAGE";
+
+var EzyCommand = EzyCommand || {};
+EzyCommand.ERROR = 10;
+EzyCommand.HANDSHAKE = 11;
+EzyCommand.PING = 12;
+EzyCommand.PONG = 13;
+EzyCommand.DISCONNECT = 14;
+EzyCommand.LOGIN = 20;
+EzyCommand.LOGIN_ERROR = 21;
+EzyCommand.LOGOUT = 22;
+EzyCommand.APP_ACCESS = 30;
+EzyCommand.APP_REQUEST = 31;
+EzyCommand.APP_EXIT = 33;
+EzyCommand.APP_ACCESS_ERROR = 34;
+EzyCommand.PLUGIN_INFO = 40;
+EzyCommand.PLUGIN_REQUEST_BY_NAME = 41;
+EzyCommand.PLUGIN_REQUEST_BY_ID = 42;
+
+var EzyUnlogCommands = EzyUnlogCommands || {}
+EzyUnlogCommands = [EzyCommand.PING, EzyCommand.PONG];
+
+var EzyCommandNames = EzyCommandNames || {};
+EzyCommandNames[EzyCommand.ERROR] = "ERROR";
+EzyCommandNames[EzyCommand.HANDSHAKE] = "HANDSHAKE";
+EzyCommandNames[EzyCommand.PING] = "PING";
+EzyCommandNames[EzyCommand.PONG] = "PONG";
+EzyCommandNames[EzyCommand.DISCONNECT] = "DISCONNECT";
+EzyCommandNames[EzyCommand.LOGIN] = "LOGIN";
+EzyCommandNames[EzyCommand.LOGIN_ERROR] = "LOGIN_ERROR";
+EzyCommandNames[EzyCommand.LOGOUT] = "LOGOUT";
+EzyCommandNames[EzyCommand.APP_ACCESS] = "APP_ACCESS";
+EzyCommandNames[EzyCommand.APP_REQUEST] = "APP_REQUEST";
+EzyCommandNames[EzyCommand.APP_EXIT] = "APP_EXIT";
+EzyCommandNames[EzyCommand.APP_ACCESS_ERROR] = "APP_ACCESS_ERROR";
+EzyCommandNames[EzyCommand.PLUGIN_INFO] = "PLUGIN_INFO";
+EzyCommandNames[EzyCommand.PLUGIN_REQUEST_BY_NAME] = "PLUGIN_REQUEST_BY_NAME";
+EzyCommandNames[EzyCommand.PLUGIN_REQUEST_BY_ID] = "PLUGIN_REQUEST_BY_ID";
+
+var EzyDisconnectReason = EzyDisconnectReason || {};
+EzyDisconnectReason.UNKNOWN = 0;
+EzyDisconnectReason.IDLE = 1;
+EzyDisconnectReason.NOT_LOGGED_IN = 2;
+EzyDisconnectReason.ANOTHER_SESSION_LOGIN = 3;
+EzyDisconnectReason.ADMIN_BAN = 4;
+EzyDisconnectReason.ADMIN_KICK = 5;
+EzyDisconnectReason.MAX_REQUEST_PER_SECOND = 6;
+EzyDisconnectReason.MAX_REQUEST_SIZE = 7;
+EzyDisconnectReason.SERVER_ERROR = 8;
+EzyDisconnectReason.SERVER_NOT_RESPONSE = 300;
+
+var EzyDisconnectReasonNames = EzyDisconnectReasonNames || {};
+EzyDisconnectReasonNames[EzyDisconnectReason.UNKNOWN] = "UNKNOWN";
+EzyDisconnectReasonNames[EzyDisconnectReason.IDLE] = "IDLE";
+EzyDisconnectReasonNames[EzyDisconnectReason.NOT_LOGGED_IN] = "NOT_LOGGED_IN";
+EzyDisconnectReasonNames[EzyDisconnectReason.ANOTHER_SESSION_LOGIN] = "ANOTHER_SESSION_LOGIN";
+EzyDisconnectReasonNames[EzyDisconnectReason.ADMIN_BAN] = "ADMIN_BAN";
+EzyDisconnectReasonNames[EzyDisconnectReason.ADMIN_KICK] = "ADMIN_KICK";
+EzyDisconnectReasonNames[EzyDisconnectReason.MAX_REQUEST_PER_SECOND] = "MAX_REQUEST_PER_SECOND";
+EzyDisconnectReasonNames[EzyDisconnectReason.MAX_REQUEST_SIZE] = "MAX_REQUEST_SIZE";
+EzyDisconnectReasonNames[EzyDisconnectReason.SERVER_ERROR] = "SERVER_ERROR";
+EzyDisconnectReasonNames[EzyDisconnectReason.SERVER_NOT_RESPONSE] = "SERVER_NOT_RESPONSE";
