@@ -25,19 +25,17 @@
             log.append(msg + " \n").scrollTop(log[0].scrollHeight - log.height());
         }
 
-        var HandshakeEventHandler = function() {
-            this.handle = function(context, data) {
-                this.sendLoginRequest(context);
-                this.startPing(context);
-            }
+        var handshakeHandler = new EzyHandshakeHandler();
+        handshakeHandler.newLoginRequest = function(context) {
+            return ["example", "DungTV", "123456", []];
+        }
 
-            this.startPing = function(context) {
-                context.startPing();
-            }
-            
-            this.sendLoginRequest = function(context) {
-                var loginRequest = ["example", "DungTV", "123456", []];
-                context.sendRequest(EzyCommand.LOGIN, loginRequest);
+        var userLoginHandler = new EzyLoginHandler();
+        userLoginHandler.handleLoginSuccess = function(context) {
+            var me = context.zone.me;
+            if(me.joinedAppList.length <= 0) {
+                var accessAppRequest = ["ezyfox-simple-chat", []];
+                context.sendRequest(EzyCommand.APP_ACCESS, accessAppRequest);
             }
         }
 
@@ -49,8 +47,8 @@
             } else {
                 $('#connect').click(function () {
                     var client = new EzyClient();
-                    client.addEventHandler(EzyEventType.CONNECTION_SUCCESS, new EzyConnectionEventHandler());
-                    client.addDataHandler(EzyCommand.HANDSHAKE, new HandshakeEventHandler());
+                    client.addDataHandler(EzyCommand.HANDSHAKE, handshakeHandler);
+                    client.addDataHandler(EzyCommand.LOGIN, userLoginHandler);
                     client.connect($('#url').val());
                 });
             }

@@ -51,12 +51,16 @@ var EzyClient = function () {
     this.disconnected = false;
     this.lostPingCount = 0;
     this.maxLostPingCount = 3;
+    this.zone = null;
     this.eventHandlers = {};
     this.eventHandlers[EzyEventType.CONNECTION_SUCCESS] = new EzyConnectionEventHandler();
     this.eventHandlers[EzyEventType.MESSAGE] = new EzyMessageEventHandler();
     this.eventHandlers[EzyEventType.DISCONNECTION] = new EzyDisconnectionEventHandler();
     this.dataHandlers = {};
     this.dataHandlers[EzyCommand.PONG] = new EzyPongHandler();
+    this.dataHandlers[EzyCommand.HANDSHAKE] = new EzyHandshakeHandler();
+    this.dataHandlers[EzyCommand.LOGIN] = new EzyLoginHandler();
+    this.dataHandlers[EzyCommand.APP_ACCESS] = new EzyAppAccessHandler();
 
     this.connect = function(url) {
         this.connector = new EzyConnector(this);
