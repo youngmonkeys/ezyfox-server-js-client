@@ -79,7 +79,7 @@ var EzyClient = function () {
     this.sendRequest = function(cmd, data) {
         if(!EzyUnlogCommands.includes(cmd)) {
             var cmdName = EzyCommandNames[cmd];
-            console.log('send cmd: ' + cmdName + ", data: " + data);
+            console.log('send cmd: ' + cmdName + ", data: " + JSON.stringify(data));
         }
         var request = [cmd, data];
         this.send(request);
