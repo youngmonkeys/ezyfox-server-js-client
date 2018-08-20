@@ -4,7 +4,7 @@ var EzyMessageEventHandler = function() {
         var data = message.length > 1 ? message[1] : [];
         var cmdName = EzyCommandNames[cmd];
         if(!EzyUnlogCommands.includes(cmd)) {
-            console.log('received cmd: ' + cmdName + ", data: " + data);
+            console.log('received cmd: ' + cmdName + ", data: " + JSON.stringify(data));
         }
         if(cmd == EzyCommand.DISCONNECT) {
             context.connected = false;
