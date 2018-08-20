@@ -61,6 +61,7 @@ var EzyClient = function () {
     this.dataHandlers[EzyCommand.HANDSHAKE] = new EzyHandshakeHandler();
     this.dataHandlers[EzyCommand.LOGIN] = new EzyLoginHandler();
     this.dataHandlers[EzyCommand.APP_ACCESS] = new EzyAppAccessHandler();
+    this.dataHandlers[EzyCommand.APP_REQUEST] = new EzyAppResponseHandler();
     this.appDataHandlers = {};
 
     this.connect = function(url) {
