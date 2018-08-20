@@ -113,13 +113,38 @@ var EzyLoginHandler = function() {
         this.handleResponseData(context, responseData);
         this.handleLoginSuccess(context);
         console.log("user: " + user.name + " logged in successfully")
+        var appAccessHandler = context.dataHandlers[EzyCommand.APP_ACCESS];
+        if(appAccessHandler) {
+            zone.appList.forEach(function(app) {
+                appAccessHandler.handleAccessApp(context, app);
+            });
+        } else {
+            console.log("has no app access handler, ignore handling apps on user logged in");
+        }
     }
 
     this.handleResponseData = function(context, data) {
     }
 
     this.handleLoginSuccess = function(context) {
+        var me = context.zone.me;
+        if(me.joinedAppList.length <= 0) 
+            this.handleHasntJoinedApp(context);
+        else
+            this.handleHasJoinedApps(context);
     }
+
+    this.handleHasntJoinedApp = function(context) {
+    }
+
+    this.handleHasJoinedApps = function(context) {
+        var zone = context.zone;
+        var appList = zone.appList;
+        appList.forEach(function(app) {
+            
+        });
+    }
+
 }
 
 var EzyAppAccessHandler = function() {
@@ -127,12 +152,57 @@ var EzyAppAccessHandler = function() {
         var appId = data[0];
         var appName = data[1];
         var app = new EzyApp(context, appId, appName);
-        var me = context.zone.me;
+        var zone = context.zone;
+        var me = zone.me;
+        zone.addApp(app);
         me.addJoinedApp(app);
         this.handleAccessAppSuccess(context, app);
+    }
+
+    this.handleAccessApp = function(context, app) {
         console.log("access app: " + app.name + " successfully");
+        this.handleAccessAppSuccess(context, app);
     }
 
     this.handleAccessAppSuccess = function(context, app) {
+    }
+}
+
+var EzyAppResponseHandler = function() {
+    this.handle = function(context, data) {
+        var appId = data[0];
+        var responseData = data[1];
+        var app = context.zone.appsById[appId];
+        var handler = app.dataHandler;
+        if(handler)
+            handler.handle(app, responseData);
+        else
+            console.log("app: " + app.name + " has no handler");
+    }
+}
+
+var EzyAppDataHandler = function() {
+    this.handlers = {};
+
+    this.addHandler = function(cmd, handler) {
+        this.handlers[cmd] = handler;
+    }
+
+    this.handle = function(app, data) {
+        var cmd = this.getCommand(data);
+        var responseData = this.getResponseData(data);
+        var handler = this.handlers[cmd];
+        if(handler)
+            handler(app, responseData);
+        else
+            console.log("app: " + app.name + " has no handler with command: " + cmd);
+    }
+
+    this.getCommand = function(data) {
+        return data[0];
+    }
+
+    this.getResponseData = function(data) {
+        return data[1];
     }
 }

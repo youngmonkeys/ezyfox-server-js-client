@@ -31,12 +31,15 @@
         }
 
         var userLoginHandler = new EzyLoginHandler();
-        userLoginHandler.handleLoginSuccess = function(context) {
-            var me = context.zone.me;
-            if(me.joinedAppList.length <= 0) {
-                var accessAppRequest = ["ezyfox-simple-chat", []];
-                context.sendRequest(EzyCommand.APP_ACCESS, accessAppRequest);
-            }
+        userLoginHandler.handleHasntJoinedApp = function(context) {
+            var accessAppRequest = ["ezyfox-simple-chat", []];
+            context.sendRequest(EzyCommand.APP_ACCESS, accessAppRequest);
+        }
+
+        var accessAppHandler = new EzyAppAccessHandler();
+        accessAppHandler.handleAccessAppSuccess = function(context, app) {
+            var request = {"message" : "hello"};
+            app.sendRequest("smsg", request);
         }
 
         $(function () {
@@ -49,6 +52,7 @@
                     var client = new EzyClient();
                     client.addDataHandler(EzyCommand.HANDSHAKE, handshakeHandler);
                     client.addDataHandler(EzyCommand.LOGIN, userLoginHandler);
+                    client.addDataHandler(EzyCommand.APP_ACCESS, accessAppHandler);
                     client.connect($('#url').val());
                 });
             }

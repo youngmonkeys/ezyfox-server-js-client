@@ -61,6 +61,7 @@ var EzyClient = function () {
     this.dataHandlers[EzyCommand.HANDSHAKE] = new EzyHandshakeHandler();
     this.dataHandlers[EzyCommand.LOGIN] = new EzyLoginHandler();
     this.dataHandlers[EzyCommand.APP_ACCESS] = new EzyAppAccessHandler();
+    this.appDataHandlers = {};
 
     this.connect = function(url) {
         this.connector = new EzyConnector(this);
@@ -90,6 +91,10 @@ var EzyClient = function () {
 
     this.addDataHandler = function(cmd, handler) {
         this.dataHandlers[cmd] = handler;
+    }
+
+    this.addAppDataHandler = function(appName, handler) {
+        this.appDataHandlers[appName] = handler;
     }
 
     this.startPing = function() {

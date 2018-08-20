@@ -21,10 +21,12 @@ var EzyZone = function(id, name) {
 var EzyApp = function(context, id, name) {
     this.id = id;
     this.name = name;
+    this.context = context;
+    this.dataHandler = context.appDataHandlers[name];
 
     this.sendRequest = function(cmd, data) {
-        var requestData = [EzyCommand.APP_REQUEST, [cmd, data]];
-        context.sendRequest(requestData);
+        var requestData = [this.id, [cmd, data]];
+        this.context.sendRequest(EzyCommand.APP_REQUEST, requestData);
     }
 }
 
