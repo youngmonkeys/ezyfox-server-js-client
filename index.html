@@ -49,11 +49,13 @@
                 $('#not-supported').show()
             } else {
                 $('#connect').click(function () {
-                    var client = new EzyClient();
+                    EzyClients.getInstance().addDefaultClient(new EzyClient());
+                    var client = EzyClients.getInstance().getDefaultClient();
                     client.addDataHandler(EzyCommand.HANDSHAKE, handshakeHandler);
                     client.addDataHandler(EzyCommand.LOGIN, userLoginHandler);
                     client.addDataHandler(EzyCommand.APP_ACCESS, accessAppHandler);
                     client.connect($('#url').val());
+                    
                 });
             }
         })

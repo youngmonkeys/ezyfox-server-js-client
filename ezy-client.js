@@ -127,3 +127,38 @@ var EzyClient = function () {
             clearInterval(this.pingInterval);
     }
 }
+
+var EzyClients = (function() {
+    
+    var EzyClientsClass = function() {
+        this.clients = {};
+        this.defaultClient = "defaultClient";
+        
+        this.addClient = function(name, client) {
+        this.clients[name] = client;
+        }
+
+        this.addDefaultClient = function(client) {
+            this.clients[this.defaultClient] = client;
+        }
+
+        this.getClient = function(clientName) {
+            return this.clients[clientName];
+        }
+
+        this.getDefaultClient = function() {
+            return this.clients[this.defaultClient];
+        }
+    }
+    
+    var instance = null;
+    
+    return {
+        getInstance: function () {
+            if (!instance) {
+                instance = new EzyClientsClass();
+            }
+            return instance;
+        }
+    };
+})();
