@@ -30,7 +30,7 @@
         }
 
         var userLoginHandler = new EzyLoginHandler();
-        userLoginHandler.handleHasntJoinedApp = function(context) {
+        userLoginHandler.handleLoginSuccess = function(context) {
             var accessAppRequest = ["ezyfox-simple-chat", []];
             context.sendRequest(EzyCommand.APP_ACCESS, accessAppRequest);
         }
@@ -40,6 +40,11 @@
             var request = {"message" : "hello"};
             app.sendRequest("smsg", request);
         }
+
+        var appDataHandler = new EzyAppDataHandler();
+        appDataHandler.addHandler("smsg", function(app, data) {
+            console.log("received system message response: " + data.message);
+        });
 
         $(function () {
             $('#url').val((location.protocol.indexOf('https') == -1 ? 'ws://localhost:2208' : 'wss://') + location.host + '/ws')
@@ -53,6 +58,7 @@
                     client.addDataHandler(EzyCommand.HANDSHAKE, handshakeHandler);
                     client.addDataHandler(EzyCommand.LOGIN, userLoginHandler);
                     client.addDataHandler(EzyCommand.APP_ACCESS, accessAppHandler);
+                    client.addAppDataHandler("ezyfox-simple-chat", appDataHandler);
                     client.connect($('#url').val());
                     
                 });

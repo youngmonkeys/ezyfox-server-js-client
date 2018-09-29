@@ -9,15 +9,15 @@ var EzyMessageEventHandler = function() {
             context.connected = false;
             context.disconnected = true;
             var disconnectReason = data[0];
-            var eventHandler = context.eventHandlers[EzyEventType.DISCONNECTION];
+            var eventHandler = context.getEventHandler(EzyEventType.DISCONNECTION);
             eventHandler.handle(context, disconnectReason);
         }
         else if(cmd == EzyCommand.PONG) {
-            var dataHandler = context.dataHandlers[EzyCommand.PONG.id];
+            var dataHandler = context.getDataHandler(EzyCommand.PONG);
             dataHandler.handle(context);
         }
         else {
-            var handler = context.dataHandlers[cmd.id];
+            var handler = context.getDataHandler(cmd);
             if(handler)
                 handler.handle(context, data);
             else
@@ -104,48 +104,32 @@ var EzyLoginHandler = function() {
 
         var zone = new EzyZone(zoneId, zoneName);
         var user = new EzyUser(userId, username);
-        joinedAppArray.forEach(function(item) {
-            var app = new EzyApp(context, item[0], item[1]);
-            zone.addApp(app);
-            user.addJoinedApp(app);
-        });
         zone.me = user;
         context.zone = zone;
+        this.handleResponseAppDatas(context, joinedAppArray);
         this.handleResponseData(context, responseData);
-        this.handleLoginSuccess(context);
+        if(joinedAppArray.length <= 0)
+            this.handleLoginSuccess(context, responseData);
+        else
+            this.handleReconnectSuccess(context, responseData);
         console.log("user: " + user.name + " logged in successfully")
-        var appAccessHandler = context.dataHandlers[EzyCommand.APP_ACCESS];
-        if(appAccessHandler) {
-            zone.appList.forEach(function(app) {
-                appAccessHandler.handleAccessApp(context, app);
-            });
-        } else {
-            console.log("has no app access handler, ignore handling apps on user logged in");
-        }
     }
 
     this.handleResponseData = function(context, data) {
     }
 
-    this.handleLoginSuccess = function(context) {
-        var me = context.zone.me;
-        if(me.joinedAppList.length <= 0) 
-            this.handleHasntJoinedApp(context);
-        else
-            this.handleHasJoinedApps(context);
-    }
-
-    this.handleHasntJoinedApp = function(context) {
-    }
-
-    this.handleHasJoinedApps = function(context) {
-        var zone = context.zone;
-        var appList = zone.appList;
-        appList.forEach(function(app) {
-            
+    this.handleResponseAppDatas = function(context, appDatas) {
+        var appAccessHandler = context.getDataHandler(EzyCommand.APP_ACCESS);
+        appDatas.forEach(function(app) {
+            appAccessHandler.handle(context, app);
         });
     }
 
+    this.handleLoginSuccess = function(context, data) {
+    }
+
+    this.handleReconnectSuccess = function(context, data) {
+    }
 }
 
 var EzyAppAccessHandler = function() {

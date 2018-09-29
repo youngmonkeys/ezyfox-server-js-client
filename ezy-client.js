@@ -97,6 +97,18 @@ var EzyClient = function () {
         this.appDataHandlers[appName] = handler;
     }
 
+    this.getEventHandler = function(eventType) {
+        return this.eventHandlers[eventType];
+    }
+
+    this.getDataHandler = function(cmd) {
+        return this.dataHandlers[cmd.id];
+    }
+
+    this.getAppDataHandler = function(appName) {
+        return this.appDataHandlers[appName];
+    }
+
     this.startPing = function() {
         var startPingNow = function(client) {
             var pingInterval = setInterval(
