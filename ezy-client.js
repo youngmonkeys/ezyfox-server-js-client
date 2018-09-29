@@ -57,11 +57,11 @@ var EzyClient = function () {
     this.eventHandlers[EzyEventType.MESSAGE] = new EzyMessageEventHandler();
     this.eventHandlers[EzyEventType.DISCONNECTION] = new EzyDisconnectionEventHandler();
     this.dataHandlers = {};
-    this.dataHandlers[EzyCommand.PONG] = new EzyPongHandler();
-    this.dataHandlers[EzyCommand.HANDSHAKE] = new EzyHandshakeHandler();
-    this.dataHandlers[EzyCommand.LOGIN] = new EzyLoginHandler();
-    this.dataHandlers[EzyCommand.APP_ACCESS] = new EzyAppAccessHandler();
-    this.dataHandlers[EzyCommand.APP_REQUEST] = new EzyAppResponseHandler();
+    this.dataHandlers[EzyCommand.PONG.id] = new EzyPongHandler();
+    this.dataHandlers[EzyCommand.HANDSHAKE.id] = new EzyHandshakeHandler();
+    this.dataHandlers[EzyCommand.LOGIN.id] = new EzyLoginHandler();
+    this.dataHandlers[EzyCommand.APP_ACCESS.id] = new EzyAppAccessHandler();
+    this.dataHandlers[EzyCommand.APP_REQUEST.id] = new EzyAppResponseHandler();
     this.appDataHandlers = {};
 
     this.connect = function(url) {
@@ -79,10 +79,9 @@ var EzyClient = function () {
 
     this.sendRequest = function(cmd, data) {
         if(!EzyUnlogCommands.includes(cmd)) {
-            var cmdName = EzyCommandNames[cmd];
-            console.log('send cmd: ' + cmdName + ", data: " + JSON.stringify(data));
+            console.log('send cmd: ' + cmd.name + ", data: " + JSON.stringify(data));
         }
-        var request = [cmd, data];
+        var request = [cmd.id, data];
         this.send(request);
     }
 
@@ -91,7 +90,7 @@ var EzyClient = function () {
     }
 
     this.addDataHandler = function(cmd, handler) {
-        this.dataHandlers[cmd] = handler;
+        this.dataHandlers[cmd.id] = handler;
     }
 
     this.addAppDataHandler = function(appName, handler) {

@@ -1,10 +1,9 @@
 var EzyMessageEventHandler = function() {
     this.handle = function(context, message) {
-        var cmd = message[0];
+        var cmd = EzyCommands[message[0]];
         var data = message.length > 1 ? message[1] : [];
-        var cmdName = EzyCommandNames[cmd];
         if(!EzyUnlogCommands.includes(cmd)) {
-            console.log('received cmd: ' + cmdName + ", data: " + JSON.stringify(data));
+            console.log('received cmd: ' +  cmd.name + ", data: " + JSON.stringify(data));
         }
         if(cmd == EzyCommand.DISCONNECT) {
             context.connected = false;
@@ -14,15 +13,15 @@ var EzyMessageEventHandler = function() {
             eventHandler.handle(context, disconnectReason);
         }
         else if(cmd == EzyCommand.PONG) {
-            var dataHandler = context.dataHandlers[EzyCommand.PONG];
+            var dataHandler = context.dataHandlers[EzyCommand.PONG.id];
             dataHandler.handle(context);
         }
         else {
-            var handler = context.dataHandlers[cmd];
+            var handler = context.dataHandlers[cmd.id];
             if(handler)
                 handler.handle(context, data);
             else
-                console.log("has no handler with command: " + cmdName);
+                console.log("has no handler with command: " +  cmd.name);
         }
     }
 }
@@ -36,15 +35,15 @@ var EzyConnectionEventHandler = function() {
     }
 
     this.sendHandshake = function(context) {
-        var keyPair = this.loadKeyPair();
         var clientId = this.getClientId();
-        var clientKey = keyPair.getPublicBaseKeyB64();
-        var reconnectToken = this.getReconnectToken();
-        var request = [clientId, clientKey, reconnectToken, this.clientType, this.clientVersion];
+        var clientKey = this.getClientKey();;
+        var token = this.getToken();
+        var enableEncryption = this.isEnableEncryption();
+        var request = [clientId, clientKey, this.clientType, this.clientVersion, enableEncryption, token];
         context.sendRequest(EzyCommand.HANDSHAKE, request);
     }
-
-    this.getReconnectToken = function() {
+    
+    this.getClientKey = function() {
         return "";
     }
 
@@ -52,10 +51,12 @@ var EzyConnectionEventHandler = function() {
         return Guid.generate();
     }
 
-    this.loadKeyPair = function() {
-        var keyPairGenerator = new EzyRSAKeyPairGenerator();
-        var keyPair = keyPairGenerator.generateKeyPair(1024);
-        return keyPair;
+    this.getToken = function() {
+        return "";
+    }
+
+    this.isEnableEncryption = function() {
+        return false;
     }
 }
 
