@@ -112,7 +112,7 @@ var EzyLoginHandler = function() {
             this.handleLoginSuccess(context, responseData);
         else
             this.handleReconnectSuccess(context, responseData);
-        console.log("user: " + user.name + " logged in successfully")
+        console.log("user: " + user.name + " logged in successfully");
     }
 
     this.handleResponseData = function(context, data) {
