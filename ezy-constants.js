@@ -1,57 +1,87 @@
-var EzyEventType = EzyEventType || {};
-EzyEventType.CONNECTION_SUCCESS = "CONNECTION_SUCCESS";
-EzyEventType.CONNECTION_FAILURE = "CONNECTION_FAILURE";
-EzyEventType.DISCONNECTION = "DISCONNECTION";
-EzyEventType.MESSAGE = "MESSAGE";
+var EzyCommand = EzyCommand || {
+    ERROR : {id: 10, name: "ERROR"},
+    HANDSHAKE : {id: 11, name: "HANDSHAKE"},
+    PING : {id: 12, name: "PING"},
+    PONG : {id: 13, name: "PONG"},
+    DISCONNECT : {id: 14, name: "DISCONNECT"},
+    LOGIN : {id: 20, name: "LOGIN"},
+    LOGIN_ERROR : {id: 21, name: "LOGIN_ERROR"},
+    LOGOUT : {id: 22, name: "LOGOUT"},
+    APP_ACCESS : {id: 30, name: "APP_ACCESS"},
+    APP_REQUEST : {id: 31, name: "APP_REQUEST"},
+    APP_EXIT : {id: 33, name: "APP_EXIT"},
+    APP_ACCESS_ERROR : {id: 34, name: "APP_ACCESS_ERROR"},
+    PLUGIN_INFO : {id: 40, name: "PLUGIN_INFO"},
+    PLUGIN_REQUEST_BY_NAME : {id: 41, name: "PLUGIN_REQUEST_BY_NAME"},
+    PLUGIN_REQUEST_BY_ID : {id: 42, name: "PLUGIN_REQUEST_BY_ID"}
+}
 
-var EzyCommand = EzyCommand || {};
-EzyCommand.ERROR = 10;
-EzyCommand.HANDSHAKE = 11;
-EzyCommand.PING = 12;
-EzyCommand.PONG = 13;
-EzyCommand.DISCONNECT = 14;
-EzyCommand.LOGIN = 20;
-EzyCommand.LOGIN_ERROR = 21;
-EzyCommand.LOGOUT = 22;
-EzyCommand.APP_ACCESS = 30;
-EzyCommand.APP_REQUEST = 31;
-EzyCommand.APP_EXIT = 33;
-EzyCommand.APP_ACCESS_ERROR = 34;
-EzyCommand.PLUGIN_INFO = 40;
-EzyCommand.PLUGIN_REQUEST_BY_NAME = 41;
-EzyCommand.PLUGIN_REQUEST_BY_ID = 42;
+Object.freeze(EzyCommand);
 
-var EzyUnlogCommands = EzyUnlogCommands || {}
-EzyUnlogCommands = [EzyCommand.PING, EzyCommand.PONG];
+var EzyCommands = EzyCommands || {};
+EzyCommands[EzyCommand.ERROR.id] = EzyCommand.ERROR;
+EzyCommands[EzyCommand.HANDSHAKE.id] = EzyCommand.HANDSHAKE;
+EzyCommands[EzyCommand.PING.id] = EzyCommand.PING;
+EzyCommands[EzyCommand.PONG.id] = EzyCommand.PONG;
+EzyCommands[EzyCommand.DISCONNECT.id] = EzyCommand.DISCONNECT;
+EzyCommands[EzyCommand.LOGIN.id] = EzyCommand.LOGIN;
+EzyCommands[EzyCommand.LOGIN_ERROR.id]  = EzyCommand.LOGIN_ERROR;
+EzyCommands[EzyCommand.LOGOUT.id]  = EzyCommand.LOGOUT;
+EzyCommands[EzyCommand.APP_ACCESS.id]  = EzyCommand.APP_ACCESS;
+EzyCommands[EzyCommand.APP_REQUEST.id] = EzyCommand.APP_REQUEST;
+EzyCommands[EzyCommand.APP_EXIT.id] = EzyCommand.APP_EXIT;
+EzyCommands[EzyCommand.APP_ACCESS_ERROR.id] = EzyCommand.APP_ACCESS_ERROR;
+EzyCommands[EzyCommand.PLUGIN_INFO.id] = EzyCommand.PLUGIN_INFO;
+EzyCommands[EzyCommand.PLUGIN_REQUEST_BY_NAME.id] = EzyCommand.PLUGIN_REQUEST_BY_NAME;
+EzyCommands[EzyCommand.PLUGIN_REQUEST_BY_ID.id] = EzyCommand.PLUGIN_REQUEST_BY_ID;
 
-var EzyCommandNames = EzyCommandNames || {};
-EzyCommandNames[EzyCommand.ERROR] = "ERROR";
-EzyCommandNames[EzyCommand.HANDSHAKE] = "HANDSHAKE";
-EzyCommandNames[EzyCommand.PING] = "PING";
-EzyCommandNames[EzyCommand.PONG] = "PONG";
-EzyCommandNames[EzyCommand.DISCONNECT] = "DISCONNECT";
-EzyCommandNames[EzyCommand.LOGIN] = "LOGIN";
-EzyCommandNames[EzyCommand.LOGIN_ERROR] = "LOGIN_ERROR";
-EzyCommandNames[EzyCommand.LOGOUT] = "LOGOUT";
-EzyCommandNames[EzyCommand.APP_ACCESS] = "APP_ACCESS";
-EzyCommandNames[EzyCommand.APP_REQUEST] = "APP_REQUEST";
-EzyCommandNames[EzyCommand.APP_EXIT] = "APP_EXIT";
-EzyCommandNames[EzyCommand.APP_ACCESS_ERROR] = "APP_ACCESS_ERROR";
-EzyCommandNames[EzyCommand.PLUGIN_INFO] = "PLUGIN_INFO";
-EzyCommandNames[EzyCommand.PLUGIN_REQUEST_BY_NAME] = "PLUGIN_REQUEST_BY_NAME";
-EzyCommandNames[EzyCommand.PLUGIN_REQUEST_BY_ID] = "PLUGIN_REQUEST_BY_ID";
+Object.freeze(EzyCommands);
 
-var EzyDisconnectReason = EzyDisconnectReason || {};
-EzyDisconnectReason.UNKNOWN = 0;
-EzyDisconnectReason.IDLE = 1;
-EzyDisconnectReason.NOT_LOGGED_IN = 2;
-EzyDisconnectReason.ANOTHER_SESSION_LOGIN = 3;
-EzyDisconnectReason.ADMIN_BAN = 4;
-EzyDisconnectReason.ADMIN_KICK = 5;
-EzyDisconnectReason.MAX_REQUEST_PER_SECOND = 6;
-EzyDisconnectReason.MAX_REQUEST_SIZE = 7;
-EzyDisconnectReason.SERVER_ERROR = 8;
-EzyDisconnectReason.SERVER_NOT_RESPONSE = 300;
+var EzyEventType = EzyEventType || {
+    CONNECTION_SUCCESS: "CONNECTION_SUCCESS",
+    CONNECTION_FAILURE: "CONNECTION_FAILURE",
+    DISCONNECTION : "DISCONNECTION",
+    LOST_PING : "LOST_PING",
+    TRY_CONNECT : "TRY_CONNECT"
+}
+
+Object.freeze(EzyEventType);
+
+var EzyConnectionStatus = EzyConnectionStatus || {
+    NULL: "NULL",
+    CONNECTING: "CONNECTING",
+    CONNECTED: "CONNECTED",
+    DISCONNECTED: "DISCONNECTED",
+    FAILURE: "FAILURE",
+    RECONNECTING: "RECONNECTING"
+}
+
+Object.freeze(EzyConnectionStatus);
+
+var EzyConnectionFailedReason = EzyConnectionFailedReason || {
+    NETWORK_UNREACHABLE: "NETWORK_UNREACHABLE",
+    UNKNOWN_HOST: "UNKNOWN_HOST",
+    CONNECTION_REFUSED: "CONNECTION_REFUSED",
+    UNKNOWN: "UNKNOWN"
+}
+
+Object.freeze(EzyConnectionFailedReason);
+
+var EzyDisconnectReason = EzyDisconnectReason || {
+    UNKNOWN : 0,
+    IDLE : 1,
+    NOT_LOGGED_IN : 2,
+    ANOTHER_SESSION_LOGIN : 3,
+    ADMIN_BAN : 4,
+    ADMIN_KICK : 5,
+    MAX_REQUEST_PER_SECOND : 6,
+    MAX_REQUEST_SIZE : 7,
+    SERVER_ERROR : 8,
+    SERVER_NOT_RESPONSE : 400,
+    CONNECTION_REFUSE : 401
+}
+
+Object.freeze(EzyDisconnectReason);
 
 var EzyDisconnectReasonNames = EzyDisconnectReasonNames || {};
 EzyDisconnectReasonNames[EzyDisconnectReason.UNKNOWN] = "UNKNOWN";
@@ -64,3 +94,12 @@ EzyDisconnectReasonNames[EzyDisconnectReason.MAX_REQUEST_PER_SECOND] = "MAX_REQU
 EzyDisconnectReasonNames[EzyDisconnectReason.MAX_REQUEST_SIZE] = "MAX_REQUEST_SIZE";
 EzyDisconnectReasonNames[EzyDisconnectReason.SERVER_ERROR] = "SERVER_ERROR";
 EzyDisconnectReasonNames[EzyDisconnectReason.SERVER_NOT_RESPONSE] = "SERVER_NOT_RESPONSE";
+
+EzyDisconnectReasonNames.parse = function(reasonId) {
+    var name = EzyDisconnectReasonNames[reasonId];
+    if(name)
+        return name;
+    return reasonId.toString();
+}
+
+Object.freeze(EzyDisconnectReasonNames);

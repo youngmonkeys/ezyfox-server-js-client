@@ -17,7 +17,6 @@
         }
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-    <script src="./lib/jsencrypt.min.js"></script>
     <script src="./bin/ezyclient-1.0.0.min.js"></script>
     <script type="text/javascript">
         var log = function(msg) {
@@ -26,21 +25,56 @@
         }
 
         var handshakeHandler = new EzyHandshakeHandler();
-        handshakeHandler.newLoginRequest = function(context) {
-            return ["example", "DungTV", "123456", []];
+        handshakeHandler.getLoginRequest = function(context) {
+            return ["freechat", "DungTV", "123456", []];
         }
 
-        var userLoginHandler = new EzyLoginHandler();
-        userLoginHandler.handleHasntJoinedApp = function(context) {
-            var accessAppRequest = ["ezyfox-simple-chat", []];
-            context.sendRequest(EzyCommand.APP_ACCESS, accessAppRequest);
+        var userLoginHandler = new EzyLoginSuccessHandler();
+        userLoginHandler.handleLoginSuccess = function() {
+            var accessAppRequest = ["freechat", []];
+            this.client.sendRequest(EzyCommand.APP_ACCESS, accessAppRequest);
         }
 
         var accessAppHandler = new EzyAppAccessHandler();
-        accessAppHandler.handleAccessAppSuccess = function(context, app) {
-            var request = {"message" : "hello"};
-            app.sendRequest("smsg", request);
+        accessAppHandler.postHandle = function(app, data) {
+            // controller.handleAccessAppSuccess(app);
         }
+
+        var disconnectionHandler = new EzyDisconnectionHandler();
+        disconnectionHandler.preHandle = function(event) {
+            console.log("custom handleDisconnection")
+            // controller.handleDisconnection(event.reason);
+        }
+
+        var config = new EzyClientConfig;
+        config.zoneName = "freechat";
+        var clients = EzyClients.getInstance();
+        var client = clients.newDefaultClient(config);
+        var setup = client.setup;
+        setup.addEventHandler(EzyEventType.DISCONNECTION, disconnectionHandler);
+        setup.addDataHandler(EzyCommand.HANDSHAKE, handshakeHandler);
+        setup.addDataHandler(EzyCommand.LOGIN, userLoginHandler);
+        setup.addDataHandler(EzyCommand.APP_ACCESS, accessAppHandler);
+        var setupApp = setup.setupApp("freechat");
+        setupApp.addDataHandler("1", function(app, data) {
+            controller.contactController.handleSuggestedContactsResponse(data);
+        });
+        
+        setupApp.addDataHandler("2", function(app, data) {
+            controller.contactController.handleAddContactsResponse(data);
+        });
+        
+        setupApp.addDataHandler("4", function(app, data) {
+            controller.messageController.handleSystemMessageResponse(data);
+        });
+        
+        setupApp.addDataHandler("5", function(app, data) {
+            controller.contactController.handleContactsResponse(data);
+        });
+        
+        setupApp.addDataHandler("6", function(app, data) {
+            controller.messageController.handleUserMessageResponse(data);
+        });
 
         $(function () {
             $('#url').val((location.protocol.indexOf('https') == -1 ? 'ws://localhost:2208' : 'wss://') + location.host + '/ws')
@@ -49,10 +83,6 @@
                 $('#not-supported').show()
             } else {
                 $('#connect').click(function () {
-                    var client = new EzyClient();
-                    client.addDataHandler(EzyCommand.HANDSHAKE, handshakeHandler);
-                    client.addDataHandler(EzyCommand.LOGIN, userLoginHandler);
-                    client.addDataHandler(EzyCommand.APP_ACCESS, accessAppHandler);
                     client.connect($('#url').val());
                 });
             }

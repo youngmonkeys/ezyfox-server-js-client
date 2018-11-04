@@ -1,40 +1,50 @@
-var EzyConnector = function(context) {
+var EzyConnector = function() {
     this.ws = null;
-    this.connect = function(url) {
+    this.connect = function(client, url) {
         this.ws = new WebSocket(url);
+        var failed = false;
+        var pingManager = client.pingManager;
+        var eventMessageHandler = client.eventMessageHandler;
 
         this.ws.onerror = function (e) {
-            console.log('error : ' + e.message)
+            console.log('connect to: ' + url + ' error : ' + JSON.stringify(e));
+            failed = true;
+            var event = new EzyConnectionFailureEvent(
+                EzyConnectionFailedReason.UNKNOWN);
+            eventMessageHandler.handleEvent(event);
         }
 
         this.ws.onopen = function () {
-            console.log('connected');
-            context.connected = true;
-            context.disconnected = false;
-            var handler = context.eventHandlers[EzyEventType.CONNECTION_SUCCESS];
-            handler.handle(context);
+            console.log('connected to: ' + url);
+            client.reconnectCount = 0;
+            client.status = EzyConnectionStatus.CONNECTED;
+            var event = new EzyConnectionSuccessEvent();
+            eventMessageHandler.handleEvent(event);
         }
 
         this.ws.onclose = function () {
-            if(context.connected) {
-                var handler = context.eventHandlers[EzyEventType.DISCONNECTION];
-                handler.handle(context, EzyDisconnectReason.UNKNOWN);
+            if(failed)
+                return;
+            if(client.isConnected()) {
+                var reason = EzyDisconnectReason.UNKNOWN;
+                eventMessageHandler.handleDisconnection(reason);
             }
-            context.connected = false;
-            context.disconnected = true;
+            else {
+                console.log('connection to: ' + url + " has disconnected before");
+            }
         }
 
         this.ws.onmessage = function (event) {
-            context.lostPingCount = 0;
+            pingManager.lostPingCount = 0;
             var data = event.data;
             var message = JSON.parse(data);
-            var handler = context.eventHandlers[EzyEventType.MESSAGE];
-            handler.handle(context, message);
+            eventMessageHandler.handleMessage(message);
         }
     }
 
     this.disconnect = function() {
-        this.ws.close();
+        if(this.ws)
+            this.ws.close();
     }
 
     this.send = function(data) {
@@ -43,34 +53,70 @@ var EzyConnector = function(context) {
     }
 }
 
-var EzyClient = function () {
+//===============================================
+
+var EzyClient = function (config) {
+    this.config = config;
+    this.name = config.getClientName();
+    this.url = null;
     this.connector = null;
-    this.pingInterval = null;
-    this.pingIntervalTime = 3000;
-    this.connected = false;
-    this.disconnected = false;
-    this.lostPingCount = 0;
-    this.maxLostPingCount = 3;
     this.zone = null;
-    this.eventHandlers = {};
-    this.eventHandlers[EzyEventType.CONNECTION_SUCCESS] = new EzyConnectionEventHandler();
-    this.eventHandlers[EzyEventType.MESSAGE] = new EzyMessageEventHandler();
-    this.eventHandlers[EzyEventType.DISCONNECTION] = new EzyDisconnectionEventHandler();
-    this.dataHandlers = {};
-    this.dataHandlers[EzyCommand.PONG] = new EzyPongHandler();
-    this.dataHandlers[EzyCommand.HANDSHAKE] = new EzyHandshakeHandler();
-    this.dataHandlers[EzyCommand.LOGIN] = new EzyLoginHandler();
-    this.dataHandlers[EzyCommand.APP_ACCESS] = new EzyAppAccessHandler();
-    this.dataHandlers[EzyCommand.APP_REQUEST] = new EzyAppResponseHandler();
-    this.appDataHandlers = {};
+    this.me = null;
+    this.status = EzyConnectionStatus.NULL;
+    this.reconnectCount = 0;
+    this.disconnected = false;
+    this.reconnectTimeout = null;
+    this.pingManager = new EzyPingManager();
+    this.pingSchedule = new EzyPingSchedule(this);
+    this.handlerManager = new EzyHandlerManager(this);
+    this.setup = new EzySetup(this.handlerManager);
+    this.appsById = {};
+    this.unloggableCommands = [EzyCommand.PING, EzyCommand.PONG];
+    this.eventMessageHandler = new EzyEventMessageHandler(this);
+    this.pingSchedule.eventMessageHandler = this.eventMessageHandler;
 
     this.connect = function(url) {
-        this.connector = new EzyConnector(this);
-        this.connector.connect(url);
+        this.url = url ? url : this.url;
+        this.preconnect();
+        this.reconnectCount = 0;
+        this.status = EzyConnectionStatus.CONNECTING;
+        this.connector = new EzyConnector();
+        this.connector.connect(this, this.url);
+    }
+
+    this.reconnect = function() {
+        var reconnectConfig = this.config.reconnect;
+        var maxReconnectCount = reconnectConfig.maxReconnectCount;
+        if(this.reconnectCount >= maxReconnectCount)
+            return false;
+        this.preconnect();
+        this.status = EzyConnectionStatus.RECONNECTING;
+        function reconnectNow(thiz) {
+            thiz.reconnectTimeout = setTimeout(
+                function() {
+                    thiz.connector = new EzyConnector();
+                    thiz.connector.connect(thiz, thiz.url);
+                }, 
+                reconnectConfig.reconnectPeriod
+            );
+        }
+        reconnectNow(this);
+        this.reconnectCount ++;
+        var event = new EzyTryConnectEvent(this.reconnectCount);
+        this.eventMessageHandler.handleEvent(event);
+    }
+
+    this.preconnect = function() {
+        this.zone = null;
+        this.me = null;
+        this.appsById = {};
+        if(this.reconnectTimeout)
+            clearTimeout(this.reconnectTimeout);
     }
 
     this.disconnect = function() {
-        this.connector.disconnect();
+        if(this.connector)
+            this.connector.disconnect();
     }
 
     this.send = function(data) {
@@ -78,52 +124,31 @@ var EzyClient = function () {
     }
 
     this.sendRequest = function(cmd, data) {
-        if(!EzyUnlogCommands.includes(cmd)) {
-            var cmdName = EzyCommandNames[cmd];
-            console.log('send cmd: ' + cmdName + ", data: " + JSON.stringify(data));
+        if(!this.unloggableCommands.includes(cmd)) {
+            console.log('send cmd: ' + cmd.name + ", data: " + JSON.stringify(data));
         }
-        var request = [cmd, data];
+        var request = [cmd.id, data];
         this.send(request);
     }
 
-    this.addEventHandler = function(eventType, handler) {
-        this.eventHandlers[eventType] = handler;
+    this.onDisconnected = function(reason) {
+        var reasonName = Const.EzyDisconnectReasonNames.parse(reason);
+        console.log('disconnect with: ' + this.url + ", reason: " + reasonName);
+        this.status = EzyConnectionStatus.DISCONNECTED;
+        this.pingSchedule.stop();
+        this.disconnect();
     }
 
-    this.addDataHandler = function(cmd, handler) {
-        this.dataHandlers[cmd] = handler;
+    this.isConnected = function() {
+        var connected = (this.status == EzyConnectionStatus.CONNECTED);
+        return connected;
     }
 
-    this.addAppDataHandler = function(appName, handler) {
-        this.appDataHandlers[appName] = handler;
+    this.addApp = function(app) {
+        this.appsById[app.id] = app;
     }
 
-    this.startPing = function() {
-        var startPingNow = function(client) {
-            var pingInterval = setInterval(
-                function() {
-                    if(client.lostPingCount < client.maxLostPingCount) {
-                        client.lostPingCount ++;
-                        client.sendRequest(EzyCommand.PING, []);
-                    }
-                    else {
-                        client.connected = false;
-                        client.disconnected = true;
-                        var handler = client.eventHandlers[EzyEventType.DISCONNECTION];
-                        handler.handle(client, EzyDisconnectReason.SERVER_NOT_RESPONSE);
-                        client.disconnect();
-                    }
-                }, 
-                client.pingIntervalTime
-            );
-            return pingInterval;
-        }
-        this.stopPing();
-        this.pingInterval = startPingNow(this);
-    }
-
-    this.stopPing = function() {
-        if(this.pingInterval)
-            clearInterval(this.pingInterval);
+    this.getAppById = function(appId) {
+        return this.appsById[appId];
     }
 }
