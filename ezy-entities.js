@@ -1,45 +1,29 @@
-var EzyZone = function(id, name) {
+var EzyZone = function(client, id, name) {
     this.id = id;
     this.name = name;
-    this.me = null;
-    this.appList = [];
-    this.appsById = {};
-    this.appsByName = {};
-
-    this.getApp = function() {
-        return this.appList[0];
-    }
-
-    this.addApp = function(app) {
-        this.appList.push(app);
-        this.appsById[app.id] = app;
-        this.appsByName[app.name] = app;
-    }
-
+    this.client = client;
+    this.appManager = new EzyAppManager(name);
 }
 
-var EzyApp = function(context, id, name) {
+var EzyApp = function(client, zone, id, name) {
     this.id = id;
     this.name = name;
-    this.context = context;
-    this.dataHandler = context.appDataHandlers[name];
+    this.client = client;
+    this.zone = zone;
+    this.dataHandlers = client.handlerManager.getAppDataHandlers(name);
 
     this.sendRequest = function(cmd, data) {
         var requestData = [this.id, [cmd, data]];
-        this.context.sendRequest(EzyCommand.APP_REQUEST, requestData);
+        this.client.sendRequest(EzyCommand.APP_REQUEST, requestData);
+    }
+
+    this.getDataHandler = function(cmd) {
+        var handler = this.dataHandlers.getHandler(cmd);
+        return handler;
     }
 }
 
 var EzyUser = function(id, name) {
     this.id = id;
     this.name = name;
-    this.joinedAppList = [];
-    this.joinedAppsById = {};
-    this.joinedAppsByName = {};
-
-    this.addJoinedApp = function(app) {
-        this.joinedAppList.push(app);
-        this.joinedAppsById[app.id] = app;
-        this.joinedAppsByName[app.name] = app;
-    }
 }

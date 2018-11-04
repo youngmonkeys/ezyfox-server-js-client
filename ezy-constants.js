@@ -1,12 +1,3 @@
-var EzyEventType = EzyEventType || {
-    CONNECTION_SUCCESS : "CONNECTION_SUCCESS",
-    CONNECTION_FAILURE : "CONNECTION_FAILURE",
-    DISCONNECTION : "DISCONNECTION",
-    MESSAGE : "MESSAGE"
-}
-
-Object.freeze(EzyEventType);
-
 var EzyCommand = EzyCommand || {
     ERROR : {id: 10, name: "ERROR"},
     HANDSHAKE : {id: 11, name: "HANDSHAKE"},
@@ -46,20 +37,51 @@ EzyCommands[EzyCommand.PLUGIN_REQUEST_BY_ID.id] = EzyCommand.PLUGIN_REQUEST_BY_I
 
 Object.freeze(EzyCommands);
 
-var EzyUnlogCommands = EzyUnlogCommands || {}
-EzyUnlogCommands = [EzyCommand.PING, EzyCommand.PONG];
+var EzyEventType = EzyEventType || {
+    CONNECTION_SUCCESS: "CONNECTION_SUCCESS",
+    CONNECTION_FAILURE: "CONNECTION_FAILURE",
+    DISCONNECTION : "DISCONNECTION",
+    LOST_PING : "LOST_PING",
+    TRY_CONNECT : "TRY_CONNECT"
+}
 
-var EzyDisconnectReason = EzyDisconnectReason || {};
-EzyDisconnectReason.UNKNOWN = 0;
-EzyDisconnectReason.IDLE = 1;
-EzyDisconnectReason.NOT_LOGGED_IN = 2;
-EzyDisconnectReason.ANOTHER_SESSION_LOGIN = 3;
-EzyDisconnectReason.ADMIN_BAN = 4;
-EzyDisconnectReason.ADMIN_KICK = 5;
-EzyDisconnectReason.MAX_REQUEST_PER_SECOND = 6;
-EzyDisconnectReason.MAX_REQUEST_SIZE = 7;
-EzyDisconnectReason.SERVER_ERROR = 8;
-EzyDisconnectReason.SERVER_NOT_RESPONSE = 300;
+Object.freeze(EzyEventType);
+
+var EzyConnectionStatus = EzyConnectionStatus || {
+    NULL: "NULL",
+    CONNECTING: "CONNECTING",
+    CONNECTED: "CONNECTED",
+    DISCONNECTED: "DISCONNECTED",
+    FAILURE: "FAILURE",
+    RECONNECTING: "RECONNECTING"
+}
+
+Object.freeze(EzyConnectionStatus);
+
+var EzyConnectionFailedReason = EzyConnectionFailedReason || {
+    NETWORK_UNREACHABLE: "NETWORK_UNREACHABLE",
+    UNKNOWN_HOST: "UNKNOWN_HOST",
+    CONNECTION_REFUSED: "CONNECTION_REFUSED",
+    UNKNOWN: "UNKNOWN"
+}
+
+Object.freeze(EzyConnectionFailedReason);
+
+var EzyDisconnectReason = EzyDisconnectReason || {
+    UNKNOWN : 0,
+    IDLE : 1,
+    NOT_LOGGED_IN : 2,
+    ANOTHER_SESSION_LOGIN : 3,
+    ADMIN_BAN : 4,
+    ADMIN_KICK : 5,
+    MAX_REQUEST_PER_SECOND : 6,
+    MAX_REQUEST_SIZE : 7,
+    SERVER_ERROR : 8,
+    SERVER_NOT_RESPONSE : 400,
+    CONNECTION_REFUSE : 401
+}
+
+Object.freeze(EzyDisconnectReason);
 
 var EzyDisconnectReasonNames = EzyDisconnectReasonNames || {};
 EzyDisconnectReasonNames[EzyDisconnectReason.UNKNOWN] = "UNKNOWN";
@@ -72,3 +94,12 @@ EzyDisconnectReasonNames[EzyDisconnectReason.MAX_REQUEST_PER_SECOND] = "MAX_REQU
 EzyDisconnectReasonNames[EzyDisconnectReason.MAX_REQUEST_SIZE] = "MAX_REQUEST_SIZE";
 EzyDisconnectReasonNames[EzyDisconnectReason.SERVER_ERROR] = "SERVER_ERROR";
 EzyDisconnectReasonNames[EzyDisconnectReason.SERVER_NOT_RESPONSE] = "SERVER_NOT_RESPONSE";
+
+EzyDisconnectReasonNames.parse = function(reasonId) {
+    var name = EzyDisconnectReasonNames[reasonId];
+    if(name)
+        return name;
+    return reasonId.toString();
+}
+
+Object.freeze(EzyDisconnectReasonNames);
