@@ -28,6 +28,11 @@ var EzyEventMessageHandler = function(client) {
             this.handleResponseData(cmd, data);
     }
 
+    this.handleStreaming = function(bytes) {
+        var streamingHandler = this.handlerManager.streamingHandler;
+        streamingHandler.handle(bytes);
+    }
+
     this.handleDisconnectionData = function(resonseData) {
         var reason = resonseData[0];
         this.handleDisconnection(reason);

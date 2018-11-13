@@ -37,8 +37,39 @@ var EzyConnector = function() {
         this.ws.onmessage = function (event) {
             pingManager.lostPingCount = 0;
             var data = event.data;
+            if(typeof data === 'string') {
+                handleTextMessage(data);
+            }
+            else {
+                handleBinaryMessage(data);
+            }
+        }
+
+        var handleTextMessage = function(data) {
             var message = JSON.parse(data);
             eventMessageHandler.handleMessage(message);
+        }
+
+        var handleBinaryMessage = function(bytes) {
+            var arrayBuffer;
+            var fileReader = new FileReader();
+            fileReader.onload = function(event) {
+                arrayBuffer = event.target.result;
+                var uint8ArrayNew  = new Uint8Array(arrayBuffer);
+                var headerByte = uint8ArrayNew[0];
+                var isRawBytes = (headerByte & (1 << 4)) != 0;
+                if(isRawBytes) {
+                    var isBigSize = (headerByte & 1 << 0) != 0;
+                    var offset = isBigSize ? (1 + 4) : (1 + 2);
+                    var contentBytes = bytes.slice(offset, bytes.size);
+                    eventMessageHandler.handleStreaming(contentBytes);
+                } 
+                else {
+                    // nerver fire, maybe server error
+                }
+
+            };
+            fileReader.readAsArrayBuffer(bytes.slice(0, 1));
         }
     }
 
@@ -50,6 +81,10 @@ var EzyConnector = function() {
     this.send = function(data) {
         var json = JSON.stringify(data);
         this.ws.send(json);
+    }
+
+    this.sendBytes = function(bytes) {
+        this.ws.send(bytes);
     }
 }
 
@@ -119,8 +154,12 @@ var EzyClient = function (config) {
             this.connector.disconnect();
     }
 
-    this.send = function(data) {
-        this.connector.send(data);
+    this.sendBytes = function(bytes) {
+        this.connector.sendBytes(bytes);
+    }
+
+    this.send = function(request) {
+        this.connector.send(request);
     }
 
     this.sendRequest = function(cmd, data) {
@@ -132,7 +171,7 @@ var EzyClient = function (config) {
     }
 
     this.onDisconnected = function(reason) {
-        var reasonName = Const.EzyDisconnectReasonNames.parse(reason);
+        var reasonName = EzyDisconnectReasonNames.parse(reason);
         console.log('disconnect with: ' + this.url + ", reason: " + reasonName);
         this.status = EzyConnectionStatus.DISCONNECTED;
         this.pingSchedule.stop();

@@ -43,8 +43,17 @@ var EzyPingManager = function() {
 }
 
 //======================================
+var EzyStreamingHandler = function() {
+    this.handle = function(bytes) {
+
+    }
+}
+
+//======================================
 
 var EzyHandlerManager = function(client) {
+    this.streamingHandler = new EzyStreamingHandler();
+    this.streamingHandler.client = client;
 
     this.newEventHandlers = function() {
         var handlers = new EzyEventHandlers(this.client);
@@ -89,6 +98,11 @@ var EzyHandlerManager = function(client) {
 
     this.addEventHandler = function(eventType, eventHandler) {
         this.eventHandlers.addHandler(eventType, eventHandler);
+    }
+
+    this.setStreamingHandler = function(streamingHandler) {
+        this.streamingHandler = streamingHandler;
+        this.streamingHandler.client = this.client;
     }
 
     this.client = client;

@@ -21,6 +21,10 @@ var EzySetup = function(handlerManager) {
         }
         return appSetup;
     }
+
+    this.setStreamingHandler = function(streamingHandler) {
+        this.handlerManager.streamingHandler = streamingHandler;
+    }
 }
 
 var EzyAppSetup = function(dataHandlers, parent) {
