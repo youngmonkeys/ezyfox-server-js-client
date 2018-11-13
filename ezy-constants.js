@@ -1,3 +1,5 @@
+var MAX_SMALL_MESSAGE_SIZE = 65535;
+
 var EzyCommand = EzyCommand || {
     ERROR : {id: 10, name: "ERROR"},
     HANDSHAKE : {id: 11, name: "HANDSHAKE"},

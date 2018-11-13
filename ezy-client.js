@@ -57,13 +57,15 @@ var EzyConnector = function() {
                 arrayBuffer = event.target.result;
                 var uint8ArrayNew  = new Uint8Array(arrayBuffer);
                 var headerByte = uint8ArrayNew[0];
-                var contentBytes = bytes.slice(1, bytes.size);
-                var isRawBytes = (headerByte & 1) == 0;
+                var isRawBytes = (headerByte & (1 << 4)) != 0;
                 if(isRawBytes) {
+                    var isBigSize = (headerByte & 1 << 0) != 0;
+                    var offset = isBigSize ? (1 + 4) : (1 + 2);
+                    var contentBytes = bytes.slice(offset, bytes.size);
                     eventMessageHandler.handleStreaming(contentBytes);
                 } 
                 else {
-                    //TODO: 
+                    // nerver fire, maybe server error
                 }
 
             };
@@ -169,7 +171,7 @@ var EzyClient = function (config) {
     }
 
     this.onDisconnected = function(reason) {
-        var reasonName = Const.EzyDisconnectReasonNames.parse(reason);
+        var reasonName = EzyDisconnectReasonNames.parse(reason);
         console.log('disconnect with: ' + this.url + ", reason: " + reasonName);
         this.status = EzyConnectionStatus.DISCONNECTED;
         this.pingSchedule.stop();

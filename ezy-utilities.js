@@ -1,4 +1,4 @@
-var EzyGuid = function() {}
+var EzyGuid = EzyGuid || function() {}
 
 EzyGuid.generate = function() {
     function s4() {
@@ -7,4 +7,12 @@ EzyGuid.generate = function() {
         .substring(1);
     }
     return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+}
+
+var EzyCodecs = EzyCodecs || function() {}
+
+EzyCodecs.getSizeLength = function(bytesLength) {
+    if(bytesLength > MAX_SMALL_MESSAGE_SIZE)
+        return 4;
+    return 2;
 }
