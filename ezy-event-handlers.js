@@ -1,5 +1,5 @@
 var EzyConnectionSuccessHandler = function() {
-    this.clientType = "JSEMACS6";
+    this.clientType = "JAVASCRIPT";
     this.clientVersion = "1.0.0";
 
     this.handle = function() {

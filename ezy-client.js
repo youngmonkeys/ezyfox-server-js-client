@@ -37,8 +37,37 @@ var EzyConnector = function() {
         this.ws.onmessage = function (event) {
             pingManager.lostPingCount = 0;
             var data = event.data;
+            if(typeof data === 'string') {
+                handleTextMessage(data);
+            }
+            else {
+                handleBinaryMessage(data);
+            }
+        }
+
+        var handleTextMessage = function(data) {
             var message = JSON.parse(data);
             eventMessageHandler.handleMessage(message);
+        }
+
+        var handleBinaryMessage = function(bytes) {
+            var arrayBuffer;
+            var fileReader = new FileReader();
+            fileReader.onload = function(event) {
+                arrayBuffer = event.target.result;
+                var uint8ArrayNew  = new Uint8Array(arrayBuffer);
+                var headerByte = uint8ArrayNew[0];
+                var contentBytes = bytes.slice(1, bytes.size);
+                var isRawBytes = (headerByte & 1) == 0;
+                if(isRawBytes) {
+                    eventMessageHandler.handleStreaming(contentBytes);
+                } 
+                else {
+                    //TODO: 
+                }
+
+            };
+            fileReader.readAsArrayBuffer(bytes.slice(0, 1));
         }
     }
 
@@ -50,6 +79,10 @@ var EzyConnector = function() {
     this.send = function(data) {
         var json = JSON.stringify(data);
         this.ws.send(json);
+    }
+
+    this.sendBytes = function(bytes) {
+        this.ws.send(bytes);
     }
 }
 
@@ -119,8 +152,12 @@ var EzyClient = function (config) {
             this.connector.disconnect();
     }
 
-    this.send = function(data) {
-        this.connector.send(data);
+    this.sendBytes = function(bytes) {
+        this.connector.sendBytes(bytes);
+    }
+
+    this.send = function(request) {
+        this.connector.send(request);
     }
 
     this.sendRequest = function(cmd, data) {
