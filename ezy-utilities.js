@@ -16,3 +16,12 @@ EzyCodecs.getSizeLength = function(bytesLength) {
         return 4;
     return 2;
 }
+
+EzyCodecs.getIntBytes = function(value, size) {
+    var bytes = [];
+    for(var i = 0 ; i < size ; i++) {
+        var byteValue = (value >> ((size - i - 1) * 8) & 0xff);
+        bytes.push(byteValue);
+    }
+    return bytes;
+}

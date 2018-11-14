@@ -61,7 +61,7 @@ var EzyConnector = function() {
                 if(isRawBytes) {
                     var isBigSize = (headerByte & 1 << 0) != 0;
                     var offset = isBigSize ? (1 + 4) : (1 + 2);
-                    var contentBytes = bytes.slice(offset, bytes.size);
+                    var contentBytes = bytes.slice(offset);
                     eventMessageHandler.handleStreaming(contentBytes);
                 } 
                 else {
