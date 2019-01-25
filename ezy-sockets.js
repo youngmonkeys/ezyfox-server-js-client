@@ -20,7 +20,7 @@ var EzyPingSchedule = function(client) {
         var maxLostPingCount = this.pingManager.maxLostPingCount;
         var lostPingCount = this.pingManager.increaseLostPingCount();
         if(lostPingCount >= maxLostPingCount) {
-            var reason = EzyDisconnectReason.SERVER_NOT_RESPONDING;
+            var reason = EzyDisconnectReason.SERVER_NOT_RESPONSE;
             this.eventMessageHandler.handleDisconnection(reason);
         }
         else {
