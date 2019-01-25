@@ -79,7 +79,7 @@ var EzyDisconnectReason = EzyDisconnectReason || {
     MAX_REQUEST_PER_SECOND : 6,
     MAX_REQUEST_SIZE : 7,
     SERVER_ERROR : 8,
-    SERVER_NOT_RESPONSE : 400,
+    SERVER_NOT_RESPONDING : 400,
     CONNECTION_REFUSE : 401
 }
 
@@ -95,7 +95,7 @@ EzyDisconnectReasonNames[EzyDisconnectReason.ADMIN_KICK] = "ADMIN_KICK";
 EzyDisconnectReasonNames[EzyDisconnectReason.MAX_REQUEST_PER_SECOND] = "MAX_REQUEST_PER_SECOND";
 EzyDisconnectReasonNames[EzyDisconnectReason.MAX_REQUEST_SIZE] = "MAX_REQUEST_SIZE";
 EzyDisconnectReasonNames[EzyDisconnectReason.SERVER_ERROR] = "SERVER_ERROR";
-EzyDisconnectReasonNames[EzyDisconnectReason.SERVER_NOT_RESPONSE] = "SERVER_NOT_RESPONSE";
+EzyDisconnectReasonNames[EzyDisconnectReason.SERVER_NOT_RESPONDING] = "SERVER_NOT_RESPONSE";
 
 EzyDisconnectReasonNames.parse = function(reasonId) {
     var name = EzyDisconnectReasonNames[reasonId];
