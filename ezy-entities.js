@@ -13,7 +13,10 @@ var EzyApp = function(client, zone, id, name) {
     this.dataHandlers = client.handlerManager.getAppDataHandlers(name);
 
     this.sendRequest = function(cmd, data) {
-        var requestData = [this.id, [cmd, data]];
+        var validData = data;
+        if(!validData)
+            validData = {};
+        var requestData = [this.id, [cmd, validData]];
         this.client.sendRequest(EzyCommand.APP_REQUEST, requestData);
     }
 
