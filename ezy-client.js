@@ -1,7 +1,9 @@
 var EzyConnector = function() {
     this.ws = null;
+    this.destroyed = false;
     this.connect = function(client, url) {
         this.ws = new WebSocket(url);
+        var thiz = this;
         var failed = false;
         var pingManager = client.pingManager;
         var eventMessageHandler = client.eventMessageHandler;
@@ -9,8 +11,7 @@ var EzyConnector = function() {
         this.ws.onerror = function (e) {
             console.log('connect to: ' + url + ' error : ' + JSON.stringify(e));
             failed = true;
-            var event = new EzyConnectionFailureEvent(
-                EzyConnectionFailedReason.UNKNOWN);
+            var event = new EzyConnectionFailureEvent(EzyConnectionFailedReason.UNKNOWN);
             eventMessageHandler.handleEvent(event);
         }
 
@@ -25,6 +26,8 @@ var EzyConnector = function() {
         this.ws.onclose = function () {
             if(failed)
                 return;
+            if(thiz.destroyed)
+                return;
             if(client.isConnected()) {
                 var reason = EzyDisconnectReason.UNKNOWN;
                 eventMessageHandler.handleDisconnection(reason);
@@ -35,6 +38,8 @@ var EzyConnector = function() {
         }
 
         this.ws.onmessage = function (event) {
+            if(thiz.destroyed) 
+                return;
             pingManager.lostPingCount = 0;
             var data = event.data;
             if(typeof data === 'string') {
@@ -76,6 +81,11 @@ var EzyConnector = function() {
     this.disconnect = function() {
         if(this.ws)
             this.ws.close();
+    }
+
+    this.destroy = function() {
+        this.destroyed = true;
+        this.disconnect();
     }
 
     this.send = function(data) {
@@ -145,6 +155,8 @@ var EzyClient = function (config) {
         this.zone = null;
         this.me = null;
         this.appsById = {};
+        if(this.connector)
+            this.connector.destroy();
         if(this.reconnectTimeout)
             clearTimeout(this.reconnectTimeout);
     }
