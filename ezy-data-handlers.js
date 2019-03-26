@@ -38,40 +38,11 @@ var EzyLoginSuccessHandler = function() {
         var user = new EzyUser(userId, username);
         this.client.me = user;
         this.client.zone = zone;
-        var allowReconnect = this.allowReconnection();
-        var appCount = joinedAppArray.length;
-        var shouldReconnect = allowReconnect && appCount > 0
-        this.handleResponseData(responseData);
-        if(shouldReconnect) {
-            this.handleResponseAppDatas(joinedAppArray);
-            this.handleReconnectSuccess(responseData);
-        }
-        else {
-            this.handleLoginSuccess(responseData);
-        }            
+        this.handleLoginSuccess(joinedAppArray, responseData);         
         console.log("user: " + user.name + " logged in successfully");
     }
 
-    this.allowReconnection = function() {
-        return false;
-    }
-    
-    this.handleResponseData = function(data) {
-    }
-
-    this.handleResponseAppDatas = function(appDatas) {
-        var handlerManager = this.client.handlerManager;
-        var appAccessHandler = handlerManager.getDataHandler(EzyCommand.APP_ACCESS);
-        appDatas.forEach(function(app) {
-            appAccessHandler.handle(app);
-        });
-    }
-
-    this.handleLoginSuccess = function(data) {
-    }
-
-    this.handleReconnectSuccess = function(data) {
-        this.handleLoginSuccess(data);
+    this.handleLoginSuccess = function(joinedApps, responseData) {
     }
 }
 
