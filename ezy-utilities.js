@@ -25,3 +25,11 @@ EzyCodecs.getIntBytes = function(value, size) {
     }
     return bytes;
 }
+
+var EzyLogger = EzyLogger || function() {}
+
+EzyLogger.debug = true;
+EzyLogger.console = function(message) {
+    if(EzyLogger.debug)
+        console.log(message);
+}

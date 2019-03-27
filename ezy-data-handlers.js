@@ -39,7 +39,7 @@ var EzyLoginSuccessHandler = function() {
         this.client.me = user;
         this.client.zone = zone;
         this.handleLoginSuccess(joinedAppArray, responseData);         
-        console.log("user: " + user.name + " logged in successfully");
+        EzyLogger.console("user: " + user.name + " logged in successfully");
     }
 
     this.handleLoginSuccess = function(joinedApps, responseData) {
@@ -56,7 +56,7 @@ var EzyAppAccessHandler = function() {
         appManager.addApp(app);
         this.client.addApp(app);
         this.postHandle(app, data);
-        console.log("access app: " + app.name + " successfully");
+        EzyLogger.console("access app: " + app.name + " successfully");
     }
 
     this.newApp = function(zone, data) {
@@ -91,7 +91,7 @@ var EzyAppResponseHandler = function() {
         if(handler)
             handler(app, commandData);
         else
-            console.log("app: " + app.name + " has no handler for command: " + cmd);
+            EzyLogger.console("app: " + app.name + " has no handler for command: " + cmd);
     }
 }
 

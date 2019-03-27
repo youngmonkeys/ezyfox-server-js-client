@@ -101,6 +101,7 @@ video#gumVideo {
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 <script src="./bin/ezyclient-1.0.0.min.js"></script>
 <script type="text/javascript">
+EzyLogger.debug = true;
 var log = function(msg) {
     var log = $('#log')
     log.append(msg + " \n").scrollTop(log[0].scrollHeight - log.height());
