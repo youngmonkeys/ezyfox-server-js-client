@@ -9,14 +9,14 @@ var EzyConnector = function() {
         var eventMessageHandler = client.eventMessageHandler;
 
         this.ws.onerror = function (e) {
-            console.log('connect to: ' + url + ' error : ' + JSON.stringify(e));
+            EzyLogger.console('connect to: ' + url + ' error : ' + JSON.stringify(e));
             failed = true;
             var event = new EzyConnectionFailureEvent(EzyConnectionFailedReason.UNKNOWN);
             eventMessageHandler.handleEvent(event);
         }
 
         this.ws.onopen = function () {
-            console.log('connected to: ' + url);
+            EzyLogger.console('connected to: ' + url);
             client.reconnectCount = 0;
             client.status = EzyConnectionStatus.CONNECTED;
             var event = new EzyConnectionSuccessEvent();
@@ -33,7 +33,7 @@ var EzyConnector = function() {
                 eventMessageHandler.handleDisconnection(reason);
             }
             else {
-                console.log('connection to: ' + url + " has disconnected before");
+                EzyLogger.console('connection to: ' + url + " has disconnected before");
             }
         }
 
@@ -176,7 +176,7 @@ var EzyClient = function (config) {
 
     this.sendRequest = function(cmd, data) {
         if(!this.unloggableCommands.includes(cmd)) {
-            console.log('send cmd: ' + cmd.name + ", data: " + JSON.stringify(data));
+            EzyLogger.console('send cmd: ' + cmd.name + ", data: " + JSON.stringify(data));
         }
         var request = [cmd.id, data];
         this.send(request);
@@ -184,7 +184,7 @@ var EzyClient = function (config) {
 
     this.onDisconnected = function(reason) {
         var reasonName = EzyDisconnectReasonNames.parse(reason);
-        console.log('disconnect with: ' + this.url + ", reason: " + reasonName);
+        EzyLogger.console('disconnect with: ' + this.url + ", reason: " + reasonName);
         this.status = EzyConnectionStatus.DISCONNECTED;
         this.pingSchedule.stop();
         this.disconnect();

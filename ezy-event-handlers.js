@@ -47,7 +47,7 @@ var EzyConnectionSuccessHandler = function() {
 
 var EzyConnectionFailureHandler = function() {
     this.handle = function(event) {
-        console.log("connection failure, reason = " + event.reason);
+        EzyLogger.console("connection failure, reason = " + event.reason);
         var config = this.client.config;
         var reconnectConfig = config.reconnect;
         var should = this.shouldReconnect(event);
@@ -74,7 +74,7 @@ var EzyConnectionFailureHandler = function() {
 
 var EzyDisconnectionHandler = function() {
     this.handle = function(event) {
-        console.log("handle disconnection, reason = " + event.reason);
+        EzyLogger.console("handle disconnection, reason = " + event.reason);
         this.preHandle(event);
         var config = this.client.config;
         var reconnectConfig = config.reconnect;

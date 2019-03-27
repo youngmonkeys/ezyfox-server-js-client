@@ -8,7 +8,7 @@ var EzyEventMessageHandler = function(client) {
         if(eventHandler)
             eventHandler.handle(event);
         else
-            console.log('has no handler with event: ' + event.getType());
+            EzyLogger.console('has no handler with event: ' + event.getType());
     }
 
     this.handleDisconnection = function(reason) {
@@ -21,7 +21,7 @@ var EzyEventMessageHandler = function(client) {
         var cmd = EzyCommands[message[0]];
         var data = message.length > 1 ? message[1] : [];
         if(!this.unloggableCommands.includes(cmd))
-            console.log('received cmd: ' + cmd.name + ", data: " + JSON.stringify(data));
+            EzyLogger.console('received cmd: ' + cmd.name + ", data: " + JSON.stringify(data));
         if(cmd === EzyCommand.DISCONNECT)
             this.handleDisconnectionData(data);
         else
@@ -43,6 +43,6 @@ var EzyEventMessageHandler = function(client) {
         if(handler)
             handler.handle(responseData);
         else
-            console.log("has no handler with command: " + cmd.name);
+            EzyLogger.console("has no handler with command: " + cmd.name);
     }
 }
