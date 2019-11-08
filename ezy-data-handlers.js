@@ -31,18 +31,17 @@ var EzyLoginSuccessHandler = function() {
         var zoneName = data[1];
         var userId = data[2];
         var username = data[3];
-        var joinedAppArray = data[4];
-        var responseData = data[5];
+        var responseData = data[4];
 
         var zone = new EzyZone(this.client, zoneId, zoneName);
         var user = new EzyUser(userId, username);
         this.client.me = user;
         this.client.zone = zone;
-        this.handleLoginSuccess(joinedAppArray, responseData);         
+        this.handleLoginSuccess(responseData);         
         EzyLogger.console("user: " + user.name + " logged in successfully");
     }
 
-    this.handleLoginSuccess = function(joinedApps, responseData) {
+    this.handleLoginSuccess = function(responseData) {
     }
 }
 
@@ -72,6 +71,49 @@ var EzyAppAccessHandler = function() {
 
 //======================================
 
+var EzyAppExitHandler = function() {
+    this.handle = function(data) {
+        var zone = this.client.zone;
+        var appManager = zone.appManager
+        var appId = data[0];
+        var reasonId = data[1];
+        var app = appManager.removeApp(appId);
+        if(app) {
+            this.postHandle(app, data);
+            EzyLogger.console("user exit app: " + app.name + ", reason: " + reasonId);
+        }
+    }
+
+    this.postHandle = function(app, data) {
+    }
+
+}
+
+//======================================
+
+var EzyPluginInfoHandler = function() {
+    this.handle = function(data) {
+        var zone = this.client.zone;
+        var pluginManager = zone.pluginManager;
+        var plugin = this.newPlugin(zone, data);
+        pluginManager.addPlugin(plugin);
+        this.postHandle(plugin, data);
+        EzyLogger.console("request plugin: " + plugin.name + " info successfully");
+    }
+
+    this.newPlugin = function(zone, data) {
+        var pluginId = data[0];
+        var pluginName = data[1];
+        var plugin = new EzyPlugin(this.client, zone, pluginId, pluginName);
+        return plugin;
+    }
+
+    this.postHandle = function(plugin, data) {
+    }
+}
+
+//======================================
+
 var EzyPongHandler = function() {
     this.handle = function(client) {
     }
@@ -92,6 +134,24 @@ var EzyAppResponseHandler = function() {
             handler(app, commandData);
         else
             EzyLogger.console("app: " + app.name + " has no handler for command: " + cmd);
+    }
+}
+
+//======================================
+
+var EzyPluginResponseHandler = function() {
+    this.handle = function(data) {
+        var pluginId = data[0];
+        var responseData = data[1];
+        var cmd = responseData[0];
+        var commandData = responseData[1];
+
+        var plugin = this.client.getPluginById(pluginId);
+        var handler = plugin.getDataHandler(cmd);
+        if(handler)
+            handler(plugin, commandData);
+        else
+            EzyLogger.console("plugin: " + plugin.name + " has no handler for command: " + cmd);
     }
 }
 

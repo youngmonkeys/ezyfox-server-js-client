@@ -183,8 +183,6 @@ var EzyClient = function (config) {
     }
 
     this.onDisconnected = function(reason) {
-        var reasonName = EzyDisconnectReasonNames.parse(reason);
-        EzyLogger.console('disconnect with: ' + this.url + ", reason: " + reasonName);
         this.status = EzyConnectionStatus.DISCONNECTED;
         this.pingSchedule.stop();
         this.disconnect();

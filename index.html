@@ -99,7 +99,7 @@ video#gumVideo {
     </div>
 </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-<script src="./bin/ezyclient-1.0.0.js"></script>
+<script src="./bin/ezyclient-1.0.1.js"></script>
 <script type="text/javascript">
 EzyLogger.debug = true;
 var log = function(msg) {
@@ -120,6 +120,7 @@ userLoginHandler.handleLoginSuccess = function() {
 
 var accessAppHandler = new EzyAppAccessHandler();
 accessAppHandler.postHandle = function(app, data) {
+    this.client.sendRequest(EzyCommand.APP_EXIT, [app.id]);
 }
 
 var disconnectionHandler = new EzyDisconnectionHandler();
