@@ -47,13 +47,24 @@ var EzyLoginSuccessHandler = function() {
 
 //======================================
 
+var EzyLoginErrorHandler = function() {
+    this.handle = function(data) {
+        this.client.disconnect(401);
+        this.handleLoginError(data);
+    }
+
+    this.handleLoginError = function(data) {
+    }
+}
+
+//======================================
+
 var EzyAppAccessHandler = function() {
     this.handle = function(data) {
         var zone = this.client.zone;
         var appManager = zone.appManager;
         var app = this.newApp(zone, data);
         appManager.addApp(app);
-        this.client.addApp(app);
         this.postHandle(app, data);
         EzyLogger.console("access app: " + app.name + " successfully");
     }
@@ -91,6 +102,24 @@ var EzyAppExitHandler = function() {
 
 //======================================
 
+var EzyAppResponseHandler = function() {
+    this.handle = function(data) {
+        var appId = data[0];
+        var responseData = data[1];
+        var cmd = responseData[0];
+        var commandData = responseData[1];
+
+        var app = this.client.getAppById(appId);
+        var handler = app.getDataHandler(cmd);
+        if(handler)
+            handler(app, commandData);
+        else
+            EzyLogger.console("app: " + app.name + " has no handler for command: " + cmd);
+    }
+}
+
+//======================================
+
 var EzyPluginInfoHandler = function() {
     this.handle = function(data) {
         var zone = this.client.zone;
@@ -114,31 +143,6 @@ var EzyPluginInfoHandler = function() {
 
 //======================================
 
-var EzyPongHandler = function() {
-    this.handle = function(client) {
-    }
-}
-
-//======================================
-
-var EzyAppResponseHandler = function() {
-    this.handle = function(data) {
-        var appId = data[0];
-        var responseData = data[1];
-        var cmd = responseData[0];
-        var commandData = responseData[1];
-
-        var app = this.client.getAppById(appId);
-        var handler = app.getDataHandler(cmd);
-        if(handler)
-            handler(app, commandData);
-        else
-            EzyLogger.console("app: " + app.name + " has no handler for command: " + cmd);
-    }
-}
-
-//======================================
-
 var EzyPluginResponseHandler = function() {
     this.handle = function(data) {
         var pluginId = data[0];
@@ -152,6 +156,13 @@ var EzyPluginResponseHandler = function() {
             handler(plugin, commandData);
         else
             EzyLogger.console("plugin: " + plugin.name + " has no handler for command: " + cmd);
+    }
+}
+
+//======================================
+
+var EzyPongHandler = function() {
+    this.handle = function(client) {
     }
 }
 

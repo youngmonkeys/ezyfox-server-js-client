@@ -1,6 +1,8 @@
 var EzyConnector = function() {
     this.ws = null;
     this.destroyed = false;
+    this.disconnectReason = null;
+
     this.connect = function(client, url) {
         this.ws = new WebSocket(url);
         var thiz = this;
@@ -29,7 +31,7 @@ var EzyConnector = function() {
             if(thiz.destroyed)
                 return;
             if(client.isConnected()) {
-                var reason = EzyDisconnectReason.UNKNOWN;
+                var reason = thiz.disconnectReason || Const.EzyDisconnectReason.UNKNOWN;
                 eventMessageHandler.handleDisconnection(reason);
             }
             else {
@@ -78,9 +80,11 @@ var EzyConnector = function() {
         }
     }
 
-    this.disconnect = function() {
-        if(this.ws)
+    this.disconnect = function(reason) {
+        if(this.ws) {
+            this.disconnectReason = reason;
             this.ws.close();
+        }
     }
 
     this.destroy = function() {
@@ -115,7 +119,6 @@ var EzyClient = function (config) {
     this.pingSchedule = new EzyPingSchedule(this);
     this.handlerManager = new EzyHandlerManager(this);
     this.setup = new EzySetup(this.handlerManager);
-    this.appsById = {};
     this.unloggableCommands = [EzyCommand.PING, EzyCommand.PONG];
     this.eventMessageHandler = new EzyEventMessageHandler(this);
     this.pingSchedule.eventMessageHandler = this.eventMessageHandler;
@@ -161,9 +164,9 @@ var EzyClient = function (config) {
             clearTimeout(this.reconnectTimeout);
     }
 
-    this.disconnect = function() {
+    this.disconnect = function(reason) {
         if(this.connector)
-            this.connector.disconnect();
+            this.connector.disconnect(reason);
     }
 
     this.sendBytes = function(bytes) {
@@ -193,11 +196,25 @@ var EzyClient = function (config) {
         return connected;
     }
 
-    this.addApp = function(app) {
-        this.appsById[app.id] = app;
+    this.getAppById = function(appId) {
+        if(!this.zone) return null;
+        var appManager = this.zone.appManager;
+        return appManager.getAppById(appId);
     }
 
-    this.getAppById = function(appId) {
-        return this.appsById[appId];
+    this.getPluginById = function(pluginId) {
+        if(!this.zone) return null;
+        var pluginManager = this.zone.pluginManager;
+        return pluginManager.getPluginById(pluginId);
+    }
+
+    this.getAppManager = function() {
+        if(!this.zone) return null;
+        return this.zone.appManager;
+    }
+
+    this.getPluginManager = function() {
+        if(!this.zone) return null;
+        return this.zone.pluginManager;
     }
 }

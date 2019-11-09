@@ -79,8 +79,7 @@ var EzyDisconnectReason = EzyDisconnectReason || {
     MAX_REQUEST_PER_SECOND : 6,
     MAX_REQUEST_SIZE : 7,
     SERVER_ERROR : 8,
-    SERVER_NOT_RESPONDING : 400,
-    CONNECTION_REFUSE : 401
+    SERVER_NOT_RESPONDING : 400
 }
 
 Object.freeze(EzyDisconnectReason);

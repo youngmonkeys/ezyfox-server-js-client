@@ -115,6 +115,7 @@ var EzyHandlerManager = function(client) {
         handlers.addHandler(EzyCommand.PONG, new EzyPongHandler());
         handlers.addHandler(EzyCommand.HANDSHAKE, new EzyHandshakeHandler());
         handlers.addHandler(EzyCommand.LOGIN, new EzyLoginSuccessHandler());
+        handlers.addHandler(EzyCommand.LOGIN_ERROR, new EzyLoginErrorHandler());
         handlers.addHandler(EzyCommand.APP_ACCESS, new EzyAppAccessHandler());
         handlers.addHandler(EzyCommand.APP_REQUEST, new EzyAppResponseHandler());
         handlers.addHandler(EzyCommand.APP_EXIT, new EzyAppExitHandler());

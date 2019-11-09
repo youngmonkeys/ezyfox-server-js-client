@@ -42,12 +42,37 @@ var EzySetup = function(handlerManager) {
         return appSetup;
     }
 
+    this.setupPlugin = function(pluginName) {
+        var pluginSetup = this.pluginSetups[pluginName];
+        if(!pluginSetup) {
+            var pluginDataHandlers = this.handlerManager.getPluginDataHandlers(pluginName);
+            pluginSetup = new EzyPluginSetup(pluginDataHandlers, this);
+            this.pluginSetups[pluginName] = pluginSetup;
+        }
+        return pluginSetup;
+    }
+
     this.setStreamingHandler = function(streamingHandler) {
         this.handlerManager.streamingHandler = streamingHandler;
     }
 }
 
 var EzyAppSetup = function(dataHandlers, parent) {
+    this.parent = parent;
+    this.dataHandlers = dataHandlers;
+
+    this.addDataHandler = function(cmd, dataHandler) {
+        this.dataHandlers.addHandler(cmd, dataHandler);
+        return this;
+    }
+
+    this.done = function() {
+        return this.parent;
+    }
+}
+
+var EzyPluginSetup = function(dataHandlers, parent) {
+
     this.parent = parent;
     this.dataHandlers = dataHandlers;
 
@@ -143,8 +168,7 @@ var EzyDisconnectReason = EzyDisconnectReason || {
     MAX_REQUEST_PER_SECOND : 6,
     MAX_REQUEST_SIZE : 7,
     SERVER_ERROR : 8,
-    SERVER_NOT_RESPONDING : 400,
-    CONNECTION_REFUSE : 401
+    SERVER_NOT_RESPONDING : 400
 }
 
 Object.freeze(EzyDisconnectReason);
@@ -339,6 +363,7 @@ var EzyHandlerManager = function(client) {
         handlers.addHandler(EzyCommand.PONG, new EzyPongHandler());
         handlers.addHandler(EzyCommand.HANDSHAKE, new EzyHandshakeHandler());
         handlers.addHandler(EzyCommand.LOGIN, new EzyLoginSuccessHandler());
+        handlers.addHandler(EzyCommand.LOGIN_ERROR, new EzyLoginErrorHandler());
         handlers.addHandler(EzyCommand.APP_ACCESS, new EzyAppAccessHandler());
         handlers.addHandler(EzyCommand.APP_REQUEST, new EzyAppResponseHandler());
         handlers.addHandler(EzyCommand.APP_EXIT, new EzyAppExitHandler());
@@ -561,6 +586,8 @@ var EzyClients = (function() {
 var EzyConnector = function() {
     this.ws = null;
     this.destroyed = false;
+    this.disconnectReason = null;
+
     this.connect = function(client, url) {
         this.ws = new WebSocket(url);
         var thiz = this;
@@ -589,7 +616,7 @@ var EzyConnector = function() {
             if(thiz.destroyed)
                 return;
             if(client.isConnected()) {
-                var reason = EzyDisconnectReason.UNKNOWN;
+                var reason = thiz.disconnectReason || Const.EzyDisconnectReason.UNKNOWN;
                 eventMessageHandler.handleDisconnection(reason);
             }
             else {
@@ -638,9 +665,11 @@ var EzyConnector = function() {
         }
     }
 
-    this.disconnect = function() {
-        if(this.ws)
+    this.disconnect = function(reason) {
+        if(this.ws) {
+            this.disconnectReason = reason;
             this.ws.close();
+        }
     }
 
     this.destroy = function() {
@@ -675,7 +704,6 @@ var EzyClient = function (config) {
     this.pingSchedule = new EzyPingSchedule(this);
     this.handlerManager = new EzyHandlerManager(this);
     this.setup = new EzySetup(this.handlerManager);
-    this.appsById = {};
     this.unloggableCommands = [EzyCommand.PING, EzyCommand.PONG];
     this.eventMessageHandler = new EzyEventMessageHandler(this);
     this.pingSchedule.eventMessageHandler = this.eventMessageHandler;
@@ -721,9 +749,9 @@ var EzyClient = function (config) {
             clearTimeout(this.reconnectTimeout);
     }
 
-    this.disconnect = function() {
+    this.disconnect = function(reason) {
         if(this.connector)
-            this.connector.disconnect();
+            this.connector.disconnect(reason);
     }
 
     this.sendBytes = function(bytes) {
@@ -753,12 +781,26 @@ var EzyClient = function (config) {
         return connected;
     }
 
-    this.addApp = function(app) {
-        this.appsById[app.id] = app;
+    this.getAppById = function(appId) {
+        if(!this.zone) return null;
+        var appManager = this.zone.appManager;
+        return appManager.getAppById(appId);
     }
 
-    this.getAppById = function(appId) {
-        return this.appsById[appId];
+    this.getPluginById = function(pluginId) {
+        if(!this.zone) return null;
+        var pluginManager = this.zone.pluginManager;
+        return pluginManager.getPluginById(pluginId);
+    }
+
+    this.getAppManager = function() {
+        if(!this.zone) return null;
+        return this.zone.appManager;
+    }
+
+    this.getPluginManager = function() {
+        if(!this.zone) return null;
+        return this.zone.pluginManager;
     }
 }
 
@@ -916,13 +958,24 @@ var EzyLoginSuccessHandler = function() {
 
 //======================================
 
+var EzyLoginErrorHandler = function() {
+    this.handle = function(data) {
+        this.client.disconnect(401);
+        this.handleLoginError(data);
+    }
+
+    this.handleLoginError = function(data) {
+    }
+}
+
+//======================================
+
 var EzyAppAccessHandler = function() {
     this.handle = function(data) {
         var zone = this.client.zone;
         var appManager = zone.appManager;
         var app = this.newApp(zone, data);
         appManager.addApp(app);
-        this.client.addApp(app);
         this.postHandle(app, data);
         EzyLogger.console("access app: " + app.name + " successfully");
     }
@@ -960,6 +1013,24 @@ var EzyAppExitHandler = function() {
 
 //======================================
 
+var EzyAppResponseHandler = function() {
+    this.handle = function(data) {
+        var appId = data[0];
+        var responseData = data[1];
+        var cmd = responseData[0];
+        var commandData = responseData[1];
+
+        var app = this.client.getAppById(appId);
+        var handler = app.getDataHandler(cmd);
+        if(handler)
+            handler(app, commandData);
+        else
+            EzyLogger.console("app: " + app.name + " has no handler for command: " + cmd);
+    }
+}
+
+//======================================
+
 var EzyPluginInfoHandler = function() {
     this.handle = function(data) {
         var zone = this.client.zone;
@@ -983,31 +1054,6 @@ var EzyPluginInfoHandler = function() {
 
 //======================================
 
-var EzyPongHandler = function() {
-    this.handle = function(client) {
-    }
-}
-
-//======================================
-
-var EzyAppResponseHandler = function() {
-    this.handle = function(data) {
-        var appId = data[0];
-        var responseData = data[1];
-        var cmd = responseData[0];
-        var commandData = responseData[1];
-
-        var app = this.client.getAppById(appId);
-        var handler = app.getDataHandler(cmd);
-        if(handler)
-            handler(app, commandData);
-        else
-            EzyLogger.console("app: " + app.name + " has no handler for command: " + cmd);
-    }
-}
-
-//======================================
-
 var EzyPluginResponseHandler = function() {
     this.handle = function(data) {
         var pluginId = data[0];
@@ -1021,6 +1067,13 @@ var EzyPluginResponseHandler = function() {
             handler(plugin, commandData);
         else
             EzyLogger.console("plugin: " + plugin.name + " has no handler for command: " + cmd);
+    }
+}
+
+//======================================
+
+var EzyPongHandler = function() {
+    this.handle = function(client) {
     }
 }
 
