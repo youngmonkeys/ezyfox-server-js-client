@@ -19,7 +19,7 @@ EzyCodecs.getSizeLength = function(bytesLength) {
 
 EzyCodecs.getIntBytes = function(value, size) {
     var bytes = [];
-    for(var i = 0 ; i < size ; i++) {
+    for(var i = 0 ; i < size ; ++i) {
         var byteValue = (value >> ((size - i - 1) * 8) & 0xff);
         bytes.push(byteValue);
     }

@@ -19,6 +19,18 @@ var EzyAppManager = function(zoneName) {
         this.appsByName[app.name] = app;
     }
 
+    this.removeApp = function(appId) {
+        var app = this.appsById[appId];
+        if(app) {
+            delete this.appsById[appId];
+            delete this.appsByName[app.name];
+            this.appList = this.appList.filter(function(item) {
+                return item.id != appId;
+            });
+        }
+        return app;
+    }
+
     this.getAppById = function(id) {
         var app = this.appsById[id];
         return app;
@@ -27,6 +39,41 @@ var EzyAppManager = function(zoneName) {
     this.getAppByName = function(name) {
         var app = this.appsByName[name];
         return app;
+    }
+}
+
+//======================================
+
+var EzyPluginManager = function(zoneName) {
+
+    this.zoneName = zoneName;
+    this.pluginList = [];
+    this.pluginsById = {};
+    this.pluginsByName = {};
+
+    this.getPlugin = function() {
+        var plugin = null;
+        if(this.pluginList.length > 0)
+           plugin = this.pluginList[0];
+        else
+            EzyLogger.console('has no plugin in zone: ' + this.zoneName);
+        return plugin;
+    }
+
+    this.addPlugin = function(plugin) {
+        this.pluginList.push(plugin);
+        this.pluginsById[plugin.id] = plugin;
+        this.pluginsByName[plugin.name] = plugin;
+    }
+
+    this.getPluginById = function(id) {
+        var plugin = this.pluginsById[id];
+        return plugin;
+    }
+
+    this.getPluginByName = function(name) {
+        var plugin = this.pluginsByName[name];
+        return plugin;
     }
 }
 
@@ -68,8 +115,12 @@ var EzyHandlerManager = function(client) {
         handlers.addHandler(EzyCommand.PONG, new EzyPongHandler());
         handlers.addHandler(EzyCommand.HANDSHAKE, new EzyHandshakeHandler());
         handlers.addHandler(EzyCommand.LOGIN, new EzyLoginSuccessHandler());
+        handlers.addHandler(EzyCommand.LOGIN_ERROR, new EzyLoginErrorHandler());
         handlers.addHandler(EzyCommand.APP_ACCESS, new EzyAppAccessHandler());
         handlers.addHandler(EzyCommand.APP_REQUEST, new EzyAppResponseHandler());
+        handlers.addHandler(EzyCommand.APP_EXIT, new EzyAppExitHandler());
+        handlers.addHandler(EzyCommand.PLUGIN_INFO, new EzyPluginInfoHandler());
+        handlers.addHandler(EzyCommand.PLUGIN_REQUEST, new EzyPluginResponseHandler());
         return handlers;
     }
 
