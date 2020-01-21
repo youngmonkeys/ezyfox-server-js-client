@@ -31,7 +31,7 @@ var EzyConnector = function() {
             if(thiz.destroyed)
                 return;
             if(client.isConnected()) {
-                var reason = thiz.disconnectReason || Const.EzyDisconnectReason.UNKNOWN;
+                var reason = thiz.disconnectReason || EzyDisconnectReason.UNKNOWN;
                 eventMessageHandler.handleDisconnection(reason);
             }
             else {
