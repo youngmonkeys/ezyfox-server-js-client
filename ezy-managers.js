@@ -143,6 +143,15 @@ var EzyHandlerManager = function(client) {
         return answer;
     }
 
+    this.getPluginDataHandlers = function(pluginName) {
+        var answer = this.pluginDataHandlerss[pluginName];
+        if(!answer) {
+            answer = new EzyPluginDataHandlers();
+            this.pluginDataHandlerss[pluginName] = answer;
+        }
+        return answer;
+    }
+
     this.addDataHandler = function(cmd, dataHandler) {
        this.dataHandlers.addHandler(cmd, dataHandler);
     }
@@ -160,4 +169,5 @@ var EzyHandlerManager = function(client) {
     this.dataHandlers = this.newDataHandlers();
     this.eventHandlers = this.newEventHandlers();
     this.appDataHandlerss = {};
+    this.pluginDataHandlerss = {};
 }

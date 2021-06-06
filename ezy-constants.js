@@ -70,6 +70,7 @@ var EzyConnectionFailedReason = EzyConnectionFailedReason || {
 Object.freeze(EzyConnectionFailedReason);
 
 var EzyDisconnectReason = EzyDisconnectReason || {
+    CLOSE: -1,
     UNKNOWN : 0,
     IDLE : 1,
     NOT_LOGGED_IN : 2,
@@ -79,12 +80,14 @@ var EzyDisconnectReason = EzyDisconnectReason || {
     MAX_REQUEST_PER_SECOND : 6,
     MAX_REQUEST_SIZE : 7,
     SERVER_ERROR : 8,
-    SERVER_NOT_RESPONDING : 400
+    SERVER_NOT_RESPONDING : 400,
+    UNAUTHORIZED: 401
 }
 
 Object.freeze(EzyDisconnectReason);
 
 var EzyDisconnectReasonNames = EzyDisconnectReasonNames || {};
+EzyDisconnectReasonNames[EzyDisconnectReason.CLOSE] = "CLOSE";
 EzyDisconnectReasonNames[EzyDisconnectReason.UNKNOWN] = "UNKNOWN";
 EzyDisconnectReasonNames[EzyDisconnectReason.IDLE] = "IDLE";
 EzyDisconnectReasonNames[EzyDisconnectReason.NOT_LOGGED_IN] = "NOT_LOGGED_IN";
@@ -95,6 +98,7 @@ EzyDisconnectReasonNames[EzyDisconnectReason.MAX_REQUEST_PER_SECOND] = "MAX_REQU
 EzyDisconnectReasonNames[EzyDisconnectReason.MAX_REQUEST_SIZE] = "MAX_REQUEST_SIZE";
 EzyDisconnectReasonNames[EzyDisconnectReason.SERVER_ERROR] = "SERVER_ERROR";
 EzyDisconnectReasonNames[EzyDisconnectReason.SERVER_NOT_RESPONDING] = "SERVER_NOT_RESPONSE";
+EzyDisconnectReasonNames[EzyDisconnectReason.UNAUTHORIZED] = "UNAUTHORIZED";
 
 EzyDisconnectReasonNames.parse = function(reasonId) {
     var name = EzyDisconnectReasonNames[reasonId];

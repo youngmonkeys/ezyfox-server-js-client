@@ -1,6 +1,7 @@
 var EzySetup = function(handlerManager) {
     this.handlerManager = handlerManager;
     this.appSetups = {};
+    this.pluginSetups = {};
 
     this.addDataHandler = function(cmd, dataHandler) {
         this.handlerManager.addDataHandler(cmd, dataHandler);

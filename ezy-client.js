@@ -165,7 +165,16 @@ var EzyClient = function (config) {
     }
 
     this.disconnect = function(reason) {
-        if(this.connector)
+        var actualReason = reason || Const.EzyDisconnectReason.CLOSE;
+        this.internalDisconnect(reason);
+    }
+
+    this.close = function() {
+        this.disconnect();
+    }
+
+    this.internalDisconnect = function(reason) {
+        if (this.connector)
             this.connector.disconnect(reason);
     }
 
@@ -173,8 +182,8 @@ var EzyClient = function (config) {
         this.connector.sendBytes(bytes);
     }
 
-    this.send = function(request) {
-        this.connector.send(request);
+    this.send = function(cmd, data) {
+        this.sendRequest(cmd, data);
     }
 
     this.sendRequest = function(cmd, data) {
@@ -182,13 +191,13 @@ var EzyClient = function (config) {
             EzyLogger.console('send cmd: ' + cmd.name + ", data: " + JSON.stringify(data));
         }
         var request = [cmd.id, data];
-        this.send(request);
+        this.connector.send(request);
     }
 
     this.onDisconnected = function(reason) {
         this.status = EzyConnectionStatus.DISCONNECTED;
         this.pingSchedule.stop();
-        this.disconnect();
+        this.internalDisconnect();
     }
 
     this.isConnected = function() {
@@ -196,11 +205,23 @@ var EzyClient = function (config) {
         return connected;
     }
 
+    this.getApp = function() {
+        if(!this.zone) return null;
+        var appManager = this.zone.appManager;
+        return appManager.getApp();
+    }
+
     this.getAppById = function(appId) {
         if(!this.zone) return null;
         var appManager = this.zone.appManager;
         return appManager.getAppById(appId);
     }
+
+    this.getPlugin = function(pluginId) {
+            if(!this.zone) return null;
+            var pluginManager = this.zone.pluginManager;
+            return pluginManager.getPlugin();
+        }
 
     this.getPluginById = function(pluginId) {
         if(!this.zone) return null;

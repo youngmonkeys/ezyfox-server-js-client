@@ -10,6 +10,7 @@ var EzyZone = function(client, id, name) {
     this.name = name;
     this.client = client;
     this.appManager = new EzyAppManager(name);
+    this.pluginManager = new EzyPluginManager(name);
 }
 
 //===================================================
@@ -20,6 +21,10 @@ var EzyApp = function(client, zone, id, name) {
     this.client = client;
     this.zone = zone;
     this.dataHandlers = client.handlerManager.getAppDataHandlers(name);
+
+    this.send = function(cmd, data) {
+        this.sendRequest(cmd, data);
+    }
 
     this.sendRequest = function(cmd, data) {
         var validData = data;
@@ -43,6 +48,10 @@ var EzyPlugin = function(client, zone, id, name) {
     this.client = client;
     this.zone = zone;
     this.dataHandlers = client.handlerManager.getPluginDataHandlers(name);
+
+    this.send = function(cmd, data) {
+        this.sendRequest(cmd, data);
+    }
 
     this.sendRequest = function(cmd, data) {
         var validData = data;

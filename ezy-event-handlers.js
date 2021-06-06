@@ -74,20 +74,25 @@ var EzyConnectionFailureHandler = function() {
 
 var EzyDisconnectionHandler = function() {
     this.handle = function(event) {
-        var reasonName = EzyDisconnectReasonNames.parse(event.reason);
+        var reason = event.reason;
+        var reasonName = EzyDisconnectReasonNames.parse(reason);
         EzyLogger.console("handle disconnection, reason = " + reasonName);
         this.preHandle(event);
         var config = this.client.config;
         var reconnectConfig = config.reconnect;
         var should = this.shouldReconnect(event);
-        var must = reconnectConfig.enable && should;
+        var mustReconnect = reconnectConfig.enable &&
+                    reason != EzyDisconnectReason.UNAUTHORIZED &&
+                    reason != EzyDisconnectReason.CLOSE &&
+                    should;
         var reconnecting = false;
         this.client.status = EzyConnectionStatus.DISCONNECTED;
-        if(must)
+        if(mustReconnect)
             reconnecting = this.client.reconnect();
         if(!reconnecting) {
             this.control(event);
         }
+        this.postHandle(event);
     }
 
     this.preHandle = function(event) {
@@ -101,6 +106,9 @@ var EzyDisconnectionHandler = function() {
     }
 
     this.control = function(event) {
+    }
+
+    this.postHandle = function(event) {
     }
 }
 

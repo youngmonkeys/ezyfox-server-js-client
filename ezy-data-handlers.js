@@ -205,3 +205,20 @@ var EzyAppDataHandlers = function() {
     }
 
 }
+
+//======================================
+
+var EzyPluginDataHandlers = function() {
+
+    this.handlers = {}
+
+    this.addHandler = function(cmd, handler) {
+        this.handlers[cmd] = handler;
+    }
+
+    this.getHandler = function(cmd) {
+        var handler = this.handlers[cmd];
+        return handler;
+    }
+
+}
