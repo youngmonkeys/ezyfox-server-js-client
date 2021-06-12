@@ -16,7 +16,7 @@ You can find the full example [here](https://github.com/youngmonkeys/ezyfox-serv
 **1. Create ws client**
 ```javascript
 var config = new EzyClientConfig;
-config.zoneName = "freechat";
+config.zoneName = "zoneName";
 var clients = EzyClients.getInstance();
 var client = clients.newDefaultClient(config);
 ```
