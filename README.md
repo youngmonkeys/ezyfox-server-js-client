@@ -1,4 +1,4 @@
-# ezyfox-server-es6-client <img src="https://github.com/youngmonkeys/ezyfox-server/blob/master/logo.png" width="64" />
+# ezyfox-server-javascript-client <img src="https://github.com/youngmonkeys/ezyfox-server/blob/master/logo.png" width="64" />
 javascript client for ezyfox server
 
 # Synopsis
