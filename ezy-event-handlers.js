@@ -60,16 +60,23 @@ var EzyConnectionFailureHandler = function () {
         var reconnecting = false;
         this.client.status = EzyConnectionStatus.FAILURE;
         if (must) reconnecting = this.client.reconnect();
-        if (!reconnecting) {
-            this.control(event);
+        if (reconnecting) {
+            this.onReconnecting(event);
+        } else {
+            this.onConnectionFailed(event);
         }
+        this.postHandle(event);
     };
 
     this.shouldReconnect = function (event) {
         return true;
     };
 
-    this.control = function (event) {};
+    this.onReconnecting = function (event) {};
+
+    this.onConnectionFailed = function (event) {};
+
+    this.postHandle = function (event) {};
 };
 
 //======================================
@@ -91,8 +98,10 @@ var EzyDisconnectionHandler = function () {
         var reconnecting = false;
         this.client.status = EzyConnectionStatus.DISCONNECTED;
         if (mustReconnect) reconnecting = this.client.reconnect();
-        if (!reconnecting) {
-            this.control(event);
+        if (reconnecting) {
+            this.onReconnecting(event);
+        } else {
+            this.onDisconnected(event);
         }
         this.postHandle(event);
     };
@@ -105,7 +114,9 @@ var EzyDisconnectionHandler = function () {
         return true;
     };
 
-    this.control = function (event) {};
+    this.onReconnecting = function (event) {};
+
+    this.onDisconnected = function (event) {};
 
     this.postHandle = function (event) {};
 };

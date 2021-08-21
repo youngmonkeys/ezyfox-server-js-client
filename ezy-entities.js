@@ -9,8 +9,8 @@ var EzyZone = function (client, id, name) {
     this.id = id;
     this.name = name;
     this.client = client;
-    this.appManager = new EzyAppManager(name);
-    this.pluginManager = new EzyPluginManager(name);
+    this.appManager = client.newAppManager(name);
+    this.pluginManager = client.newPluginManager(name);
 };
 
 //===================================================

@@ -224,9 +224,17 @@ var EzyClient = function (config) {
         return pluginManager.getPluginById(pluginId);
     };
 
+    this.newAppManager = function (zoneName) {
+        return new EzyAppManager(zoneName);
+    };
+
     this.getAppManager = function () {
         if (!this.zone) return null;
         return this.zone.appManager;
+    };
+
+    this.newPluginManager = function (zoneName) {
+        return new EzyPluginManager(zoneName);
     };
 
     this.getPluginManager = function () {
