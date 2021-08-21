@@ -4,7 +4,9 @@
   "description": "EzyFox Server's javascript client",
   "scripts": {
     "test": "test",
-    "lint": "eslint \"**/*.{js,ts,tsx}\""
+    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "full": "uglifyjs *.js -b -o bin/ezyclient-1.0.4.js",
+    "min": "uglifyjs *.js -o bin/ezyclient-1.0.4.min.js"
   },
   "repository": {
     "type": "git",
@@ -26,7 +28,8 @@
     "eslint": "^7.2.0",
     "eslint-config-prettier": "^7.0.0",
     "eslint-plugin-prettier": "^3.1.3",
-    "husky": "^4.2.5"
+    "husky": "^4.2.5",
+    "uglify-js": "^3.14.1"
   },
   "husky": {
     "hooks": {
@@ -62,7 +65,8 @@
   },
   "eslintIgnore": [
     "node_modules/",
-    "lib/"
+    "lib/",
+    "bin/"
   ],
   "prettier": {
     "quoteProps": "consistent",
