@@ -1,3 +1,8 @@
+.DS_Store
+*/.DS_Store
+**/.DS_Store
+*.DS_Store
+bin/hello-ezyfox-server.html
 stream-video.html
 nothing
 try-test.html
