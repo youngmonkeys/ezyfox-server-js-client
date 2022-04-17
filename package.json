@@ -5,8 +5,8 @@
   "scripts": {
     "test": "test",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
-    "full": "uglifyjs *.js -b -o bin/ezyclient-1.0.4.js",
-    "min": "uglifyjs *.js -o bin/ezyclient-1.0.4.min.js"
+    "full": "uglifyjs *.js -b -o bin/ezyclient-1.0.5.js",
+    "min": "uglifyjs *.js -o bin/ezyclient-1.0.5.min.js"
   },
   "repository": {
     "type": "git",
