@@ -159,8 +159,8 @@ var EzyClient = function (config) {
     };
 
     this.disconnect = function (reason) {
-        var actualReason = reason || Const.EzyDisconnectReason.CLOSE;
-        this.internalDisconnect(reason);
+        var actualReason = reason || EzyDisconnectReason.CLOSE;
+        this.internalDisconnect(actualReason);
     };
 
     this.close = function () {
