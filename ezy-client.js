@@ -68,10 +68,11 @@ var EzyConnector = function () {
                 var headerByte = uint8ArrayNew[0];
                 var isRawBytes = (headerByte & (1 << 4)) != 0;
                 if (isRawBytes) {
-                    var isBigSize = (headerByte & (1 << 0)) != 0;
-                    var offset = isBigSize ? 1 + 4 : 1 + 2;
-                    var contentBytes = bytes.slice(offset);
-                    eventMessageHandler.handleStreaming(contentBytes);
+                    // A websocket frame already carries its own length, so the
+                    // server sends raw bytes as is, with no size field after
+                    // the header. Pass the whole frame, header included, the
+                    // same way the server's websocket handler passes it on.
+                    eventMessageHandler.handleStreaming(bytes);
                 } else {
                     // nerver fire, maybe server error
                 }
